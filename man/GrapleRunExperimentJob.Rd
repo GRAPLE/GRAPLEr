@@ -33,7 +33,7 @@ Paramtername2, sub, binomial, 10, 0.5
 \examples{
 \dontrun{
 simDir="C:/Workspace/SimRoot"
-JobFileName="SweepExperiment.zip"
+JobFileName="SweepExperiment.tar.gz"
 expId<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
 }
 }

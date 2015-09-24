@@ -38,15 +38,14 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir)
 {
   td<-getwd()
   setwd(ExperimentDir)
-  files <- list.files(".", recursive=TRUE)
-  zipfile = file.path(ExperimentDir, "sim.zip")
-  zip(zipfile, files=file.path(".", files))
+  simdirs <- dir(".")
+  tarfile = file.path(ExperimentDir, "sim.tar.gz")
+  tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
   qurl <- paste(submissionURL, "GrapleRun", sep="/")
+  expid = postForm(qurl, files=fileUpload(tarfile))
 
-  expid = postForm(qurl, files=fileUpload(zipfile))
-  #simid = postForm(qurl, files=fileUpload(zipfile),.opts = list(verbose = TRUE, header = TRUE))
-  if (file.exists(zipfile)) file.remove(zipfile)
+  if (file.exists(tarfile)) file.remove(tarfile)
   setwd(td)
   return (substr(expid[1], start=13, stop=52))
 
@@ -96,10 +95,10 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
   qurl <- paste(submissionURL, "GrapleRunResults", experimentId, sep="/")
   status<- getURL(qurl)
 
-  qurl <- paste(submissionURL, experimentId, "Results", "output.zip", sep="/")
-  resultfile <- file.path(getwd(),  "results.zip")
+  qurl <- paste(submissionURL, experimentId, "Results", "output.tar.gz", sep="/")
+  resultfile <- file.path(getwd(),  "results.tar.gz")
   download.file(qurl, resultfile)
-  unzip("results.zip")
+  untar("results.tar.gz")
   return(resultfile)
 
 }
@@ -168,23 +167,23 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 {
   td<-getwd()
   setwd(simDir)
-  files <- list.files(".", recursive=FALSE)
-  zipfile = file.path(simDir, "sim.zip")
-  zip(zipfile, files=file.path(".", files))
+
+  tarfile = file.path(simDir, "sim.tar.gz")
+  tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
 
   qurl <- paste(submissionURL, "GrapleRunMetOffset", sep="/")
 
-  status <- postForm(qurl, files=fileUpload(zipfile))
+  status <- postForm(qurl, files=fileUpload(tarfile))
   print(status)
   expid <- substr(status[1], start=13, stop=52)
 
-  if (file.exists(zipfile)) file.remove(zipfile)
+  if (file.exists(tarfile)) file.remove(tarfile)
   params <- paste(expid, driverFileName, parameterName, startValue, endValue, numberOfIncrements, sep="*")
   qurl <- paste(submissionURL, "TriggerSimulation", params, sep="/")
   print(qurl)
   status = postForm(qurl, t="none")
   print(paste0("Status:", status))
-  #if(status <> "Success") print(Failed to start experiment)
+  #if(status <> "Success") print("Failed to start experiment")
   setwd(td)
   return (expid)
 }
@@ -213,7 +212,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 #' @examples
 #' \dontrun{
 #' simDir="C:/Workspace/SimRoot"
-#' JobFileName="SweepExperiment.zip"
+#' JobFileName="SweepExperiment.tar.gz"
 #' expId<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
 #' }
 GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName)
@@ -228,3 +227,32 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName)
   return (expid)
 }
 
+
+#' @title Gets the Graple Experiment Job Results
+#' @description
+#' This function allows you to retrieve the complete results
+#' of an sweep job style experiment.
+#' @param submissionURL URL:Port of the GrapeR service
+#' @param experimentId Experiment ID returned from GrapleRunExperiment
+#' or GrapleRunExperimentSweep
+#' @return a string describing the fully qualified result file name
+#' @keywords Graple GetExperimentJobResults
+#' @export
+#' @examples
+#' \dontrun{
+#' graplerURL<-"http://128.227.150.20:80"
+#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
+#' GrapleGetExperimentJobResults(graplerURL, expId)
+#' }
+GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
+{
+  qurl <- paste(submissionURL, "GrapleRunResultsMetSample", experimentId, sep="/")
+  status<- getURL(qurl)
+
+  qurl <- paste(submissionURL, experimentId, "Results", "output.tar.gz", sep="/")
+  resultfile <- file.path(getwd(),  "results.tar.gz")
+  download.file(qurl, resultfile)
+  untar("results.tar.gz")
+  return(resultfile)
+
+}
