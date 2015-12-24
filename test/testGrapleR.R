@@ -8,9 +8,15 @@ library("GrapleR")
 
 graplerURL<-"http://graple-service.cloudapp.net:80"
 expRootDir<-"c:/Workspace/SimRoot/Sims"
+filterName <- "RunSimulation.R"
 setwd(expRootDir)
 
 #print(GrapleCheckService(graplerURL))
+
+#Experiment 0
+expId<-GraplePostProcessRunExperiment(graplerURL, expRootDir, filterName)
+GrapleCheckExperimentCompletion(graplerURL, expId)
+GrapleGetPostProcessExperimentResults(graplerURL, expId)
 
 #Experiment 1
 expId<-GrapleRunExperiment(graplerURL, expRootDir)

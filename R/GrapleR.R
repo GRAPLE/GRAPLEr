@@ -42,14 +42,42 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir)
   tarfile = file.path(ExperimentDir, "sim.tar.gz")
   tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
-  qurl <- paste(submissionURL, "GrapleRun", sep="/")
+  qurl <- paste(submissionURL, "GraplePostProcessRun", "RunSimulation.R", sep="/")
   expid = postForm(qurl, files=fileUpload(tarfile))
 
   if (file.exists(tarfile)) file.remove(tarfile)
   setwd(td)
   return (substr(expid[1], start=13, stop=52))
+}
 
+#' @title Sends the experiment (multiple simulations) to be run on GrapleR
+#' This function allows you to run graple.
+#' @param submissionURL URL:Port of the GrapeR service
+#' @param ExperimentDir the experiment root folder
+#' @param FilterName the name of the post-processing filter script 
+#' @keywords Graple RunExperiment
+#' @export
+#' @examples
+#' \dontrun{
+#' graplerURL<-"http://128.227.150.20:80"
+#' expRootDir<-"./Workspace/SimRoot"
+#' filterName<-"RunSimulation.R"
+#' GraplePostProcessRunExperiment(graplerURL, expRootDir, filterName)
+#' }
+GraplePostProcessRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
+{
+  td<-getwd()
+  setwd(ExperimentDir)
+  simdirs <- dir(".")
+  tarfile = file.path(ExperimentDir, "sim.tar.gz")
+  tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
+  qurl <- paste(submissionURL, "GraplePostProcessRun", FilterName, sep="/")
+  expid = postForm(qurl, files=fileUpload(tarfile))
+
+  if (file.exists(tarfile)) file.remove(tarfile)
+  setwd(td)
+  return (substr(expid[1], start=13, stop=52))
 }
 
 #' @title Check the Graple Experiment Status
@@ -100,9 +128,41 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
   download.file(qurl, resultfile)
   untar("results.tar.gz")
   return(resultfile)
-
 }
 
+#' @title Gets the Graple Experiment Results
+#' @description
+#' This function allows you to retrieve the complete results
+#' of an experiment.
+#' @param submissionURL URL:Port of the GrapeR service
+#' @param experimentId Experiment ID returned from GrapleRunExperiment
+#' or GrapleRunExperimentSweep
+#' @return a string describing the fully qualified result file name
+#' @keywords Graple GetExperimentResults
+#' @export
+#' @examples
+#' \dontrun{
+#' graplerURL<-"http://128.227.150.20:80"
+#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
+#' GrapleGetPostProcessExperimentResults(graplerURL, expId)
+#' }
+GrapleGetPostProcessExperimentResults <- function(submissionURL, experimentId)
+{
+  qurl <- paste(submissionURL, "GrapleRunResults", experimentId, sep="/")
+  status<- getURL(qurl)
+
+  qurl <- paste(submissionURL, experimentId, "Results", "output.tar.gz", sep="/")
+  resultfile <- file.path(getwd(),  "results.tar.gz")
+  download.file(qurl, resultfile)
+  dir.create("Results")
+  file.copy("results.tar.gz", "Results/")
+  setwd("Results")
+  untar("results.tar.gz")
+  file.remove("results.tar.gz")
+  files <- list.files(".")
+  lapply(files, function(x){untar(x); file.remove(x)})
+  return(resultfile)
+}
 #' @title Gets a Graple Simulation Results
 #' @description
 #' This function allows you to retrieve the results of a
@@ -254,5 +314,4 @@ GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
   download.file(qurl, resultfile)
   untar("results.tar.gz")
   return(resultfile)
-
 }
