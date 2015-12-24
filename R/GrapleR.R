@@ -42,7 +42,7 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir)
   tarfile = file.path(ExperimentDir, "sim.tar.gz")
   tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
-  qurl <- paste(submissionURL, "GraplePostProcessRun", "RunSimulation.R", sep="/")
+  qurl <- paste(submissionURL, "GrapleRun", sep="/")
   expid = postForm(qurl, files=fileUpload(tarfile))
 
   if (file.exists(tarfile)) file.remove(tarfile)

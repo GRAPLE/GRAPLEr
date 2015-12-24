@@ -6,7 +6,7 @@ library("glmtools")
 library("GrapleR")
 
 
-graplerURL<-"http://graple-service.cloudapp.net:80"
+graplerURL<-"http://128.227.150.20:5000"
 expRootDir<-"c:/Workspace/SimRoot/Sims"
 filterName <- "RunSimulation.R"
 setwd(expRootDir)
