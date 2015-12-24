@@ -54,7 +54,7 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir)
 #' This function allows you to run graple.
 #' @param submissionURL URL:Port of the GrapeR service
 #' @param ExperimentDir the experiment root folder
-#' @param FilterName the name of the post-processing filter script 
+#' @param FilterName the name of the post-processing filter script
 #' @keywords Graple RunExperiment
 #' @export
 #' @examples
@@ -72,7 +72,13 @@ GraplePostProcessRunExperiment<-function(submissionURL, ExperimentDir, FilterNam
   tarfile = file.path(ExperimentDir, "sim.tar.gz")
   tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
-  qurl <- paste(submissionURL, "GraplePostProcessRun", FilterName, sep="/")
+  if(missing(FilterName)){
+    qurl <- paste(submissionURL, "GraplePostProcessRun", sep="/")
+  }
+  else{
+    qurl <- paste(submissionURL, "GraplePostProcessRun", FilterName, sep="/")
+  }
+
   expid = postForm(qurl, files=fileUpload(tarfile))
 
   if (file.exists(tarfile)) file.remove(tarfile)
@@ -156,6 +162,7 @@ GrapleGetPostProcessExperimentResults <- function(submissionURL, experimentId)
   download.file(qurl, resultfile)
   dir.create("Results")
   file.copy("results.tar.gz", "Results/")
+  file.remove("results.tar.gz")
   setwd("Results")
   untar("results.tar.gz")
   file.remove("results.tar.gz")
@@ -163,6 +170,7 @@ GrapleGetPostProcessExperimentResults <- function(submissionURL, experimentId)
   lapply(files, function(x){untar(x); file.remove(x)})
   return(resultfile)
 }
+
 #' @title Gets a Graple Simulation Results
 #' @description
 #' This function allows you to retrieve the results of a
