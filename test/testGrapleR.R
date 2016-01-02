@@ -8,20 +8,23 @@ library("GrapleR")
 
 graplerURL<-"http://128.227.150.20:5000"
 expRootDir<-"c:/Workspace/SimRoot/Sims"
-filterName <- "Filter1.R"
 setwd(expRootDir)
 
 #print(GrapleCheckService(graplerURL))
 
 #Experiment -1
-expId<-GraplePostProcessRunExperiment(graplerURL, expRootDir)
-GrapleCheckExperimentCompletion(graplerURL, expId)
-GrapleGetPostProcessExperimentResults(graplerURL, expId)
+expId1<-GraplePostProcessRunExperiment(graplerURL, expRootDir)
+GrapleCheckExperimentCompletion(graplerURL, expId1)
+GrapleGetPostProcessExperimentResults(graplerURL, expId1)
+
+expRootDir<-"c:/Workspace/SimRoot/SimsWithFilter"
+filterName <- "Filter1.R"
+setwd(expRootDir)
 
 #Experiment 0
-expId<-GraplePostProcessRunExperiment(graplerURL, expRootDir, filterName)
-GrapleCheckExperimentCompletion(graplerURL, expId)
-GrapleGetPostProcessExperimentResults(graplerURL, expId)
+expId2<-GraplePostProcessRunExperiment(graplerURL, expRootDir, filterName)
+GrapleCheckExperimentCompletion(graplerURL, expId2)
+GrapleGetPostProcessExperimentResults(graplerURL, expId2)
 
 #Experiment 1
 expId<-GrapleRunExperiment(graplerURL, expRootDir)
