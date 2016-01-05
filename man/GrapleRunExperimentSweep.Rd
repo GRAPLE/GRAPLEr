@@ -5,7 +5,7 @@
 \title{Creates an experiment based on sweep parameters}
 \usage{
 GrapleRunExperimentSweep(submissionURL, simDir, driverFileName, parameterName,
-  startValue, endValue, numberOfIncrements)
+  startValue, endValue, numberOfIncrements, filterName)
 }
 \arguments{
 \item{submissionURL}{URL:Port of the GrapeR service}

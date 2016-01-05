@@ -4,7 +4,7 @@
 \alias{GrapleRunExperimentJob}
 \title{Creates an experiment based on a configuration file}
 \usage{
-GrapleRunExperimentJob(submissionURL, simDir, JobFileName)
+GrapleRunExperimentJob(submissionURL, simDir, JobFileName, FilterName)
 }
 \arguments{
 \item{submissionURL}{URL:Port of the GrapeR service}

@@ -231,7 +231,7 @@ GrapleGetSimResult <- function(submissionURL, experimentId, simId)
 #' numberOfIncrements=10
 #' expId<-GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
 #' }
-GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
+GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName)
 {
   td<-getwd()
   setwd(simDir)
@@ -246,7 +246,11 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   expid <- substr(status[1], start=13, stop=52)
 
   if (file.exists(tarfile)) file.remove(tarfile)
-  params <- paste(expid, driverFileName, parameterName, startValue, endValue, numberOfIncrements, sep="*")
+  if(missing(filterName)){
+    params <- paste(expid, driverFileName, parameterName, startValue, endValue, numberOfIncrements, sep="*")
+  }else{
+    params <- paste(expid, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName, sep="*")
+  }
   qurl <- paste(submissionURL, "TriggerSimulation", params, sep="/")
   print(qurl)
   status = postForm(qurl, t="none")
@@ -283,17 +287,24 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 #' JobFileName="SweepExperiment.tar.gz"
 #' expId<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
 #' }
-GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName)
+GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName, FilterName)
 {
   td<-getwd()
   setwd(simDir)
-  qurl <- paste(submissionURL, "GrapleRunMetSample", sep="/")
+  if(missing(FilterName)){
+    qurl <- paste(submissionURL, "GrapleRunMetSample", sep="/")
+  }
+  else{
+    qurl <- paste(submissionURL, "GrapleRunMetSample", FilterName, sep="/")
+  }
+
   status <- postForm(qurl, files=fileUpload(JobFileName))
   print(status)
-  expid <- substr(status[1], start=56, stop=95)
+  expid <- substr(status[1], start=57, stop=96)
   setwd(td)
   return (expid)
 }
+
 
 
 #' @title Gets the Graple Experiment Job Results
