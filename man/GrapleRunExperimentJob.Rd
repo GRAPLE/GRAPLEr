@@ -12,6 +12,8 @@ GrapleRunExperimentJob(submissionURL, simDir, JobFileName, FilterName)
 \item{simDir}{the simulation folder containing the driver file}
 
 \item{JobFileName}{the archive file name containing the simulations and sweep parameters}
+
+\item{FilterName}{the name of post-process filter}
 }
 \value{
 the experiment ID
@@ -22,6 +24,7 @@ Create an archive that contains:
 1. data csv file.
 2. .nml file
 3. job_desc.csv file (the name has to be job_desc.csv)
+4. (optional) A FilterParams Directory, which consists of a "FilterParams.txt" file
 
 The sweep parameters in the job description file are used to generate the other sims.
 job_desc.csv is a comma separated value file in the following format:
@@ -34,6 +37,7 @@ Paramtername2, sub, binomial, 10, 0.5
 \dontrun{
 simDir="C:/Workspace/SimRoot"
 JobFileName="SweepExperiment.tar.gz"
+FilterName="Filter1.R"
 expId<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
 }
 }

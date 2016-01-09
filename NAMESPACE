@@ -2,9 +2,7 @@
 
 export(GrapleCheckExperimentCompletion)
 export(GrapleCheckService)
-export(GrapleGetExperimentJobResults)
 export(GrapleGetExperimentResults)
-export(GrapleGetPostProcessExperimentResults)
 export(GrapleGetSimResult)
 export(GraplePostProcessRunExperiment)
 export(GrapleRunExperiment)

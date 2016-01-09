@@ -21,6 +21,8 @@ GrapleRunExperimentSweep(submissionURL, simDir, driverFileName, parameterName,
 \item{endValue}{numeric end offset}
 
 \item{numberOfIncrements}{number of increments between start and end}
+
+\item{filterName}{the name of the post-process filter (optional parameter)}
 }
 \value{
 the experiment ID
@@ -37,6 +39,7 @@ parameterName="AirTemp"
 startValue=-2
 endValue=2
 numberOfIncrements=10
+filterName="Filter1.R" (optional parameter)
 expId<-GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
 }
 }

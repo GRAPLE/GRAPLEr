@@ -7,7 +7,7 @@
 GrapleCheckExperimentCompletion(submissionURL, experimentId)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapeR service}
+\item{submissionURL}{URL:Port of the GrapleR service}
 
 \item{experimentId}{Experiment ID returned from GrapleRunExperiment
 or GrapleRunExperimentSweep}
@@ -16,7 +16,7 @@ or GrapleRunExperimentSweep}
 a string describing experiment status
 }
 \description{
-This function allows you to check the staus of the GrapeR service.
+This function allows you to check the staus of the GrapleR service.
 }
 \examples{
 \dontrun{

@@ -7,7 +7,7 @@
 GrapleGetExperimentResults(submissionURL, experimentId)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapeR service}
+\item{submissionURL}{URL:Port of the GrapleR service}
 
 \item{experimentId}{Experiment ID returned from GrapleRunExperiment
 or GrapleRunExperimentSweep}
