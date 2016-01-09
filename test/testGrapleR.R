@@ -58,7 +58,7 @@ JobFileName="sweepexp.tar.gz"
 setwd(simDir)
 expId5 <- GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
 GrapleCheckExperimentCompletion(graplerURL, expId5)
-GrapleGetExperimentResults(graplerURL, expId5)
+GrapleGetExperimentJobResults(graplerURL, expId5)
 #GrapleGetSimResult(graplerURL, expId, 5)
 
 #Experiment 6
@@ -68,5 +68,5 @@ filterName = "Filter1.R"
 setwd(simDir)
 expId6<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName, filterName)
 GrapleCheckExperimentCompletion(graplerURL, expId6)
-GrapleGetExperimentResults(graplerURL, expId6)
+GrapleGetExperimentJobResults(graplerURL, expId6)
 #GrapleGetSimResult(graplerURL, expId, 5)

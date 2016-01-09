@@ -282,3 +282,38 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName, FilterNam
   setwd(td)
   return (expid)
 }
+
+#' @title Gets the Graple Experiment Job Results
+#' @description
+#' This function allows you to retrieve the complete results
+#' of an sweep job style experiment.
+#' @param submissionURL URL:Port of the GrapeR service
+#' @param experimentId Experiment ID returned from GrapleRunExperiment
+#' or GrapleRunExperimentSweep
+#' @return a string describing the fully qualified result file name
+#' @keywords Graple GetExperimentJobResults
+#' @export
+#' @examples
+#' \dontrun{
+#' graplerURL<-"http://128.227.150.20:80"
+#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
+#' GrapleGetExperimentJobResults(graplerURL, expId)
+#' }
+GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
+{
+  qurl <- paste(submissionURL, "GrapleRunResultsMetSample", experimentId, sep="/")
+  status<- getURL(qurl)
+
+  qurl <- paste(submissionURL, experimentId, "Results", "output.tar.gz", sep="/")
+  resultfile <- file.path(getwd(),  "results.tar.gz")
+  download.file(qurl, resultfile)
+  dir.create("Results")
+  file.copy("results.tar.gz", "Results/")
+  file.remove("results.tar.gz")
+  setwd("Results")
+  untar("results.tar.gz")
+  file.remove("results.tar.gz")
+  files <- list.files(".")
+  lapply(files, function(x){untar(x); file.remove(x)})
+  return(resultfile)
+}

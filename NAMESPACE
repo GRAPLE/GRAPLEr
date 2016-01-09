@@ -2,6 +2,7 @@
 
 export(GrapleCheckExperimentCompletion)
 export(GrapleCheckService)
+export(GrapleGetExperimentJobResults)
 export(GrapleGetExperimentResults)
 export(GrapleGetSimResult)
 export(GraplePostProcessRunExperiment)
