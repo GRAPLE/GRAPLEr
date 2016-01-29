@@ -3,20 +3,23 @@
 \name{GrapleRunExperiment}
 \alias{GrapleRunExperiment}
 \title{Sends the experiment (multiple simulations) to be run on GrapleR
-This function allows you to run graple.}
+This function allows you to run graple with an optional post-process filtering of results}
 \usage{
-GrapleRunExperiment(submissionURL, ExperimentDir)
+GrapleRunExperiment(submissionURL, ExperimentDir, FilterName)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapeR service}
+\item{submissionURL}{URL:Port of the GrapleR service}
 
 \item{ExperimentDir}{the experiment root folder}
+
+\item{FilterName}{the name of the post-processing filter script}
 }
 \examples{
 \dontrun{
 graplerURL<-"http://128.227.150.20:80"
 expRootDir<-"./Workspace/SimRoot"
-GrapleRunExperiment(graplerURL, expRootDir)
+filterName<-"Filter1.R"
+GrapleRunExperiment(graplerURL, expRootDir, filterName)
 }
 }
 \keyword{Graple}

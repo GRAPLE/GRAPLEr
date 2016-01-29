@@ -9,10 +9,11 @@ graplerURL<-"http://graple.acis.ufl.edu"
 #graplerURL<-"http://graple-service.cloudapp.net"
 
 #Experiment 1
+#expRootDir<-"C:/Users/owner/Desktop/Sim0"
 expRootDir<-"c:/Workspace/SimRoot/Exp1"
 setwd(expRootDir)
 
-expId1<-GraplePostProcessRunExperiment(graplerURL, expRootDir)
+expId1<-GrapleRunExperiment(graplerURL, expRootDir)
 GrapleCheckExperimentCompletion(graplerURL, expId1)
 GrapleGetExperimentResults(graplerURL, expId1)
 
@@ -21,17 +22,17 @@ expRootDir<-"c:/Workspace/SimRoot/Exp2"
 filterName <- "Filter1.R"
 setwd(expRootDir)
 
-expId2<-GraplePostProcessRunExperiment(graplerURL, expRootDir, filterName)
+expId2<-GrapleRunExperiment(graplerURL, expRootDir, filterName)
 GrapleCheckExperimentCompletion(graplerURL, expId2)
 GrapleGetExperimentResults(graplerURL, expId2)
 
 #Experiment 3
 simDir="c:/Workspace/SimRoot/Exp3"
-driverFileName="met_hourly.csv"
+driverFileName="Mendota_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
 endValue=2
-numberOfIncrements=10
+numberOfIncrements=100
 setwd(simDir)
 expId3 <- GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
 GrapleCheckExperimentCompletion(graplerURL, expId3)
@@ -40,7 +41,7 @@ GrapleGetExperimentResults(graplerURL, expId3)
 
 #Experiment 4
 simDir="c:/Workspace/SimRoot/Exp4"
-driverFileName="met_hourly.csv"
+driverFileName="Mendota_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
 endValue=2

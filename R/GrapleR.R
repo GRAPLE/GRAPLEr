@@ -21,50 +21,21 @@ GrapleCheckService<-function(submissionURL)
   return(status)
 }
 
-
 #' @title Sends the experiment (multiple simulations) to be run on GrapleR
-#' This function allows you to run graple.
-#' @param submissionURL URL:Port of the GrapeR service
+#' This function allows you to run graple with an optional post-process filtering of results
+#' @param submissionURL URL:Port of the GrapleR service
 #' @param ExperimentDir the experiment root folder
+#' @param FilterName the name of the post-processing filter script
 #' @keywords Graple RunExperiment
 #' @export
 #' @examples
 #' \dontrun{
 #' graplerURL<-"http://128.227.150.20:80"
 #' expRootDir<-"./Workspace/SimRoot"
-#' GrapleRunExperiment(graplerURL, expRootDir)
-#' }
-GrapleRunExperiment<-function(submissionURL, ExperimentDir)
-{
-  td<-getwd()
-  setwd(ExperimentDir)
-  simdirs <- dir(".")
-  tarfile = file.path(ExperimentDir, "sim.tar.gz")
-  tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
-
-  qurl <- paste(submissionURL, "GrapleRun", sep="/")
-  expid = postForm(qurl, files=fileUpload(tarfile))
-
-  if (file.exists(tarfile)) file.remove(tarfile)
-  setwd(td)
-  return (substr(expid[1], start=13, stop=52))
-}
-
-#' @title Sends the experiment (multiple simulations) to be run on GrapleR
-#' This function allows you to run graple with an optional post-process filtering of results
-#' @param submissionURL URL:Port of the GrapleR service
-#' @param ExperimentDir the experiment root folder
-#' @param FilterName the name of the post-processing filter script
-#' @keywords Graple PostProcessRunExperiment
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://128.227.150.20:80"
-#' expRootDir<-"./Workspace/SimRoot"
 #' filterName<-"Filter1.R"
-#' GraplePostProcessRunExperiment(graplerURL, expRootDir, filterName)
+#' GrapleRunExperiment(graplerURL, expRootDir, filterName)
 #' }
-GraplePostProcessRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
+GrapleRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
 {
   td<-getwd()
   setwd(ExperimentDir)
@@ -73,10 +44,10 @@ GraplePostProcessRunExperiment<-function(submissionURL, ExperimentDir, FilterNam
   tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
   if(missing(FilterName)){
-    qurl <- paste(submissionURL, "GraplePostProcessRun", sep="/")
+    qurl <- paste(submissionURL, "GrapleRun", sep="/")
   }
   else{
-    qurl <- paste(submissionURL, "GraplePostProcessRun", FilterName, sep="/")
+    qurl <- paste(submissionURL, "GrapleRun", FilterName, sep="/")
   }
 
   expid = postForm(qurl, files=fileUpload(tarfile))
