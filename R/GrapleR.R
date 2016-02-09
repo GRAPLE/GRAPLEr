@@ -263,7 +263,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 #' Parametername1, add, uniform, -1, 1
 #' Paramtername2, sub, binomial, 10, 0.5
 
-#' @param submissionURL URL:Port of the GrapeR service
+#' @param submissionURL URL:Port of the GrapleR service
 #' @param simDir the simulation folder containing the driver file
 #' @param JobFileName the archive file name containing the simulations and sweep parameters
 #' @return the experiment ID
@@ -282,7 +282,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName)
   qurl <- paste(submissionURL, "GrapleRunMetSample", sep="/")
   status <- postForm(qurl, files=fileUpload(JobFileName))
   print(status)
-  expid <- substr(status[1], start=56, stop=95)
+  expid <- substr(status[1], start=57, stop=96)
   setwd(td)
   return (expid)
 }
