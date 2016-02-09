@@ -5,11 +5,11 @@ library('GLMr')
 library("glmtools")
 library("GrapleR")
 
-graplerURL<-"http://graple.acis.ufl.edu"
-#graplerURL<-"http://graple-service.cloudapp.net"
+#graplerURL<-"http://graple.acis.ufl.edu"
+graplerURL<-"http://graple-service.cloudapp.net"
 
 #Experiment 1
-#expRootDir<-"C:/Users/owner/Desktop/Sim0"
+#expRootDir<-"C:/Workspace/SimRoot1/Exp1/mySim"
 expRootDir<-"c:/Workspace/SimRoot/Exp1"
 setwd(expRootDir)
 
@@ -32,7 +32,7 @@ driverFileName="Mendota_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
 endValue=2
-numberOfIncrements=100
+numberOfIncrements=10
 setwd(simDir)
 expId3 <- GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
 GrapleCheckExperimentCompletion(graplerURL, expId3)
@@ -54,6 +54,7 @@ GrapleGetExperimentResults(graplerURL, expId4)
 #GrapleGetSimResult(graplerURL, expId, 3)
 
 #Experiment 5
+#simDir="c:/Workspace/SimRoot/Exp5"
 simDir="c:/Workspace/SimRoot/Exp5"
 JobFileName="sweepexp.tar.gz"
 setwd(simDir)

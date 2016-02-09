@@ -114,42 +114,6 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
   return(resultfile)
 }
 
-#' @title Gets a Graple Simulation Results
-#' @description
-#' This function allows you to retrieve the results of a
-#' specific simulation in an experiment.
-#' @param submissionURL URL:Port of the GrapeR service
-#' @param experimentId Experiment ID returned from GrapleRunExperiment
-#' or GrapleRunExperimentSweep
-#' @param simId a valid simulation number from the sweep range
-#' @return a string describing the fully qualified result file name
-#' @keywords Graple GetSimResult
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://128.227.150.20:80"
-#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
-#' simId<-2
-#' GrapleGetSimResult(graplerURL, expId, simNum)
-#' }
-GrapleGetSimResult <- function(submissionURL, experimentId, simId)
-{
-  params<-paste(experimentId, simId, "output.nc", sep="*")
-  qurl <- paste(submissionURL, "download_file", params, sep="/")
-  outpURL<- getURL(qurl)
-
-  outpURL<-substr(outpURL, 21, nchar(outpURL)-3)
-
-  fileURL<-paste(submissionURL, outpURL, sep="/" )
-
-  resultfile <- file.path(getwd(),  paste0(simId,"output.nc"))
-
-  download.file(fileURL, resultfile)
-
-  return(resultfile)
-
-}
-
 #' @title Creates an experiment based on sweep parameters
 #' @description
 #' This function allows you to run an experiment using a single simulation.
@@ -249,7 +213,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName, FilterNam
 
   status <- postForm(qurl, files=fileUpload(JobFileName))
   print(status)
-  expid <- substr(status[1], start=57, stop=96)
+  expid <- substr(status[1], start=56, stop=96)
   setwd(td)
   return (expid)
 }
