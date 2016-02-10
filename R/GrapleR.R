@@ -213,7 +213,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName, FilterNam
 
   status <- postForm(qurl, files=fileUpload(JobFileName))
   print(status)
-  expid <- substr(status[1], start=56, stop=96)
+  expid <- substr(status[1], start=56, stop=95)
   setwd(td)
   return (expid)
 }
@@ -248,7 +248,7 @@ GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
   setwd("Results")
   untar("results.tar.gz")
   file.remove("results.tar.gz")
-  files <- list.files(".")
+  files <- list.files(".", pattern = "\\.bz2\\.tar$")
   lapply(files, function(x){untar(x); file.remove(x)})
   return(resultfile)
 }
