@@ -4,14 +4,12 @@
 \alias{GrapleRunExperimentJob}
 \title{Creates an experiment based on a configuration file}
 \usage{
-GrapleRunExperimentJob(submissionURL, simDir, JobFileName, FilterName)
+GrapleRunExperimentJob(submissionURL, simDir, FilterName)
 }
 \arguments{
 \item{submissionURL}{URL:Port of the GrapeR service}
 
 \item{simDir}{the simulation folder containing the driver file}
-
-\item{JobFileName}{the archive file name containing the simulations and sweep parameters}
 
 \item{FilterName}{the name of post-process filter}
 }
@@ -36,9 +34,8 @@ Paramtername2, sub, binomial, 10, 0.5
 \examples{
 \dontrun{
 simDir="C:/Workspace/SimRoot"
-JobFileName="SweepExperiment.tar.gz"
 FilterName="Filter1.R"
-expId<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
+expId<-GrapleRunExperimentJob(graplerURL, simDir, FilterName)
 }
 }
 \keyword{Graple}

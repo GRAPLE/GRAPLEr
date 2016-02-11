@@ -27,12 +27,12 @@ GrapleCheckExperimentCompletion(graplerURL, expId2)
 GrapleGetExperimentResults(graplerURL, expId2)
 
 #Experiment 3
-simDir="c:/Workspace/SimRoot/Exp3"
-driverFileName="Mendota_hourly.csv"
+simDir="c:/Workspace/SimRoot1/Exp3"
+driverFileName="met_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
 endValue=2
-numberOfIncrements=10
+numberOfIncrements=5
 setwd(simDir)
 expId3 <- GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
 GrapleCheckExperimentCompletion(graplerURL, expId3)
@@ -40,8 +40,8 @@ GrapleGetExperimentResults(graplerURL, expId3)
 #GrapleGetSimResult(graplerURL, expId, 3)
 
 #Experiment 4
-simDir="c:/Workspace/SimRoot/Exp4"
-driverFileName="Mendota_hourly.csv"
+simDir="c:/Workspace/SimRoot1/Exp4"
+driverFileName="met_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
 endValue=2
@@ -55,20 +55,18 @@ GrapleGetExperimentResults(graplerURL, expId4)
 
 #Experiment 5
 #simDir="c:/Workspace/SimRoot/Exp5"
-simDir="c:/Workspace/SimRoot/Exp5"
-JobFileName="sweepexp.tar.gz"
+simDir="c:/Workspace/SimRoot1/Exp5"
 setwd(simDir)
-expId5 <- GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
+expId5 <- GrapleRunExperimentJob(graplerURL, simDir)
 GrapleCheckExperimentCompletion(graplerURL, expId5)
 GrapleGetExperimentJobResults(graplerURL, expId5)
 #GrapleGetSimResult(graplerURL, expId, 5)
 
 #Experiment 6
 simDir="C:/Workspace/SimRoot/Exp6"
-JobFileName="sweepexp.tar.gz"
 filterName = "Filter1.R"
 setwd(simDir)
-expId6<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName, filterName)
+expId6<-GrapleRunExperimentJob(graplerURL, simDir, filterName)
 GrapleCheckExperimentCompletion(graplerURL, expId6)
 GrapleGetExperimentJobResults(graplerURL, expId6)
 #GrapleGetSimResult(graplerURL, expId, 5)
