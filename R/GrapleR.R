@@ -143,9 +143,11 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
 GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName)
 {
   td<-getwd()
-  setwd(simDir)
-
+  unlink("../tempGRAPLE", recursive = TRUE)
+  dir.create("../tempGRAPLE")
+  setwd("../tempGRAPLE")
   tarfile = file.path(simDir, "sim.tar.gz")
+  setwd(simDir)
   tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
 
   qurl <- paste(submissionURL, "GrapleRunMetOffset", sep="/")
@@ -155,6 +157,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   expid <- substr(status[1], start=13, stop=52)
 
   if (file.exists(tarfile)) file.remove(tarfile)
+  unlink("../tempGRAPLE", recursive = TRUE)
   if(missing(filterName)){
     params <- paste(expid, driverFileName, parameterName, startValue, endValue, numberOfIncrements, sep="*")
   }else{
@@ -187,7 +190,6 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 
 #' @param submissionURL URL:Port of the GrapleR service
 #' @param simDir the simulation folder containing the driver file
-#' @param JobFileName the archive file name containing the simulations and sweep parameters
 #' @param FilterName the name of post-process filter
 #' @return the experiment ID
 #' @keywords Graple RunExperimentJob
@@ -195,15 +197,18 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 #' @examples
 #' \dontrun{
 #' simDir="C:/Workspace/SimRoot"
-#' JobFileName="SweepExperiment.tar.gz"
 #' FilterName="Filter1.R"
-#' expId<-GrapleRunExperimentJob(graplerURL, simDir, JobFileName)
+#' expId<-GrapleRunExperimentJob(graplerURL, simDir, FilterName)
 #' }
-GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName, FilterName)
+GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
 {
   td<-getwd()
+  unlink("../tempGRAPLE", recursive = TRUE)
+  dir.create("../tempGRAPLE")
+  setwd("../tempGRAPLE")
+  tarfile = file.path(getwd(), "sweepexp.tar.gz")
   setwd(simDir)
-
+  tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
   if(missing(FilterName)){
     qurl <- paste(submissionURL, "GrapleRunMetSample", sep="/")
   }
@@ -211,7 +216,9 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, JobFileName, FilterNam
     qurl <- paste(submissionURL, "GrapleRunMetSample", FilterName, sep="/")
   }
 
-  status <- postForm(qurl, files=fileUpload(JobFileName))
+  status <- postForm(qurl, files=fileUpload(tarfile))
+  if (file.exists(tarfile)) file.remove(tarfile)
+  unlink("../tempGRAPLE", recursive = TRUE)
   print(status)
   expid <- substr(status[1], start=56, stop=95)
   setwd(td)
