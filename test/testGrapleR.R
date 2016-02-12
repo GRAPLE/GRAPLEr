@@ -4,6 +4,7 @@ library("RCurl")
 library('GLMr')
 library("glmtools")
 library("GrapleR")
+library("jsonlite")
 
 #graplerURL<-"http://graple.acis.ufl.edu"
 graplerURL<-"http://graple-service.cloudapp.net"
