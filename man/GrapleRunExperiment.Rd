@@ -8,7 +8,7 @@ This function allows you to run graple with an optional post-process filtering o
 GrapleRunExperiment(submissionURL, ExperimentDir, FilterName)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapleR service}
+\item{submissionURL}{URL:Port of the GRAPLEr web service}
 
 \item{ExperimentDir}{the experiment root folder}
 
@@ -16,8 +16,8 @@ GrapleRunExperiment(submissionURL, ExperimentDir, FilterName)
 }
 \examples{
 \dontrun{
-graplerURL<-"http://128.227.150.20:80"
-expRootDir<-"./Workspace/SimRoot"
+graplerURL<-"http://graple-service.cloudapp.net"
+expRootDir<-"./Workspace/ExpRoot"
 filterName<-"Filter1.R"
 GrapleRunExperiment(graplerURL, expRootDir, filterName)
 }

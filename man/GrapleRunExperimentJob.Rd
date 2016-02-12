@@ -7,7 +7,7 @@
 GrapleRunExperimentJob(submissionURL, simDir, FilterName)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapeR service}
+\item{submissionURL}{URL:Port of the GRAPLEr web service}
 
 \item{simDir}{the simulation folder containing the driver file}
 
@@ -33,7 +33,7 @@ Paramtername2, sub, binomial, 10, 0.5
 }
 \examples{
 \dontrun{
-simDir="C:/Workspace/SimRoot"
+simDir="./Workspace/ExpRoot/Exp0"
 FilterName="Filter1.R"
 expId<-GrapleRunExperimentJob(graplerURL, simDir, FilterName)
 }

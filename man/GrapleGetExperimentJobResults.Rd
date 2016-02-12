@@ -7,7 +7,7 @@
 GrapleGetExperimentJobResults(submissionURL, experimentId)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapeR service}
+\item{submissionURL}{URL:Port of the GRAPLEr web service}
 
 \item{experimentId}{Experiment ID returned from GrapleRunExperiment
 or GrapleRunExperimentSweep}
@@ -21,7 +21,7 @@ of an sweep job style experiment.
 }
 \examples{
 \dontrun{
-graplerURL<-"http://128.227.150.20:80"
+graplerURL<-"http://graple-service.cloudapp.net"
 expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
 GrapleGetExperimentJobResults(graplerURL, expId)
 }

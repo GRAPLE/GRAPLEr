@@ -7,13 +7,13 @@
 GrapleCheckService(submissionURL)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapeR service}
+\item{submissionURL}{URL:Port of the GRAPLEr web service}
 }
 \value{
 a string describing service status
 }
 \description{
-This function allows you to check the staus of the GrapeR service.
+This function allows you to check the staus of the GRAPLEr web service.
 }
 \examples{
 \dontrun{

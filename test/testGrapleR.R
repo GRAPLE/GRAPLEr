@@ -3,22 +3,23 @@ library("bitops")
 library("RCurl")
 library('GLMr')
 library("glmtools")
-library("GrapleR")
+library("GRAPLEr")
 
-#graplerURL<-"http://graple.acis.ufl.edu"
-graplerURL<-"http://graple-service.cloudapp.net"
+graplerURL<-"http://graple.acis.ufl.edu"
+#graplerURL<-"http://graple-service.cloudapp.net"
+print(GrapleCheckService(graplerURL))
 
 #Experiment 1
-#expRootDir<-"C:/Workspace/SimRoot1/Exp1/mySim"
-expRootDir<-"c:/Workspace/SimRoot/Exp1"
+expRootDir<-"c:/ExpRoot/Exp1"
 setwd(expRootDir)
 
 expId1<-GrapleRunExperiment(graplerURL, expRootDir)
 GrapleCheckExperimentCompletion(graplerURL, expId1)
 GrapleGetExperimentResults(graplerURL, expId1)
 
-#Experiment 2
-expRootDir<-"c:/Workspace/SimRoot/Exp2"
+
+#Experiment 2 - w/ Filter
+expRootDir<-"c:/ExpRoot/Exp2"
 filterName <- "Filter1.R"
 setwd(expRootDir)
 
@@ -27,41 +28,41 @@ GrapleCheckExperimentCompletion(graplerURL, expId2)
 GrapleGetExperimentResults(graplerURL, expId2)
 
 #Experiment 3
-simDir="c:/Workspace/SimRoot1/Exp3"
+simDir3="c:/ExpRoot/Exp3"
 driverFileName="met_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
 endValue=2
 numberOfIncrements=5
-setwd(simDir)
-expId3 <- GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
+setwd(simDir3)
+expId3 <- GrapleRunExperimentSweep(graplerURL, simDir3, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
 GrapleCheckExperimentCompletion(graplerURL, expId3)
 GrapleGetExperimentResults(graplerURL, expId3)
 
-#Experiment 4
-simDir="c:/Workspace/SimRoot1/Exp4"
+#Experiment 4 - w/ Filter
+simDir4="c:/ExpRoot/Exp4"
 driverFileName="met_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
 endValue=2
 numberOfIncrements=10
 filterName = "Filter1.R"
-setwd(simDir)
-expId4<-GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName)
+setwd(simDir4)
+expId4<-GrapleRunExperimentSweep(graplerURL, simDir4, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName)
 GrapleCheckExperimentCompletion(graplerURL, expId4)
 GrapleGetExperimentResults(graplerURL, expId4)
 
 #Experiment 5
-simDir="c:/Workspace/SimRoot1/Exp5"
-setwd(simDir)
-expId5 <- GrapleRunExperimentJob(graplerURL, simDir)
+simDir5="c:/ExpRoot/Exp5"
+setwd(simDir5)
+expId5 <- GrapleRunExperimentJob(graplerURL, simDir5)
 GrapleCheckExperimentCompletion(graplerURL, expId5)
 GrapleGetExperimentJobResults(graplerURL, expId5)
 
-#Experiment 6
-simDir="C:/Workspace/SimRoot/Exp6"
+#Experiment 6 - w/ Filter
+simDir6="C:/ExpRoot/Exp6"
 filterName = "Filter1.R"
-setwd(simDir)
-expId6<-GrapleRunExperimentJob(graplerURL, simDir, filterName)
+setwd(simDir6)
+expId6<-GrapleRunExperimentJob(graplerURL, simDir6, filterName)
 GrapleCheckExperimentCompletion(graplerURL, expId6)
 GrapleGetExperimentJobResults(graplerURL, expId6)

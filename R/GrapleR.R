@@ -1,12 +1,12 @@
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("This information is preliminary or provisional and is subject to revision. It is being provided to meet the need for timely best science.")
+  packageStartupMessage("GRAPLEr has been developed with support from a supplement the the PRAGMA award (NSF OCI-1234983). For more information, please visit graple.org")
 }
 
 #' @title Get the Graple Service Status
 #' @description
-#' This function allows you to check the staus of the GrapeR service.
-#' @param submissionURL URL:Port of the GrapeR service
+#' This function allows you to check the staus of the GRAPLEr web service.
+#' @param submissionURL URL:Port of the GRAPLEr web service
 #' @return a string describing service status
 #' @keywords Graple ServiceStatus
 #' @export
@@ -23,15 +23,15 @@ GrapleCheckService<-function(submissionURL)
 
 #' @title Sends the experiment (multiple simulations) to be run on GrapleR
 #' This function allows you to run graple with an optional post-process filtering of results
-#' @param submissionURL URL:Port of the GrapleR service
+#' @param submissionURL URL:Port of the GRAPLEr web service
 #' @param ExperimentDir the experiment root folder
 #' @param FilterName the name of the post-processing filter script
 #' @keywords Graple RunExperiment
 #' @export
 #' @examples
 #' \dontrun{
-#' graplerURL<-"http://128.227.150.20:80"
-#' expRootDir<-"./Workspace/SimRoot"
+#' graplerURL<-"http://graple-service.cloudapp.net"
+#' expRootDir<-"./Workspace/ExpRoot"
 #' filterName<-"Filter1.R"
 #' GrapleRunExperiment(graplerURL, expRootDir, filterName)
 #' }
@@ -59,8 +59,8 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
 
 #' @title Check the Graple Experiment Status
 #' @description
-#' This function allows you to check the staus of the GrapleR service.
-#' @param submissionURL URL:Port of the GrapleR service
+#' This function allows you to check the staus of the GRAPLEr web service.
+#' @param submissionURL URL:Port of the GRAPLEr web service
 #' @param experimentId Experiment ID returned from GrapleRunExperiment
 #' or GrapleRunExperimentSweep
 #' @return a string describing experiment status
@@ -68,7 +68,7 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
 #' @export
 #' @examples
 #' \dontrun{
-#' graplerURL<-"http://128.227.150.20:80"
+#' graplerURL<-"http://graple-service.cloudapp.net"
 #' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
 #' GrapleCheckExperimentCompletion(graplerURL, expId)
 #' }
@@ -83,7 +83,7 @@ GrapleCheckExperimentCompletion <- function(submissionURL, experimentId)
 #' @description
 #' This function allows you to retrieve the complete results
 #' of an experiment.
-#' @param submissionURL URL:Port of the GrapleR service
+#' @param submissionURL URL:Port of the GRAPLEr web service
 #' @param experimentId Experiment ID returned from GrapleRunExperiment
 #' or GrapleRunExperimentSweep
 #' @return a string describing the fully qualified result file name
@@ -91,12 +91,13 @@ GrapleCheckExperimentCompletion <- function(submissionURL, experimentId)
 #' @export
 #' @examples
 #' \dontrun{
-#' graplerURL<-"http://128.227.150.20:80"
+#' graplerURL<-"http://graple-service.cloudapp.net"
 #' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
 #' GrapleGetExperimentResults(graplerURL, expId)
 #' }
 GrapleGetExperimentResults <- function(submissionURL, experimentId)
 {
+  td<-getwd()
   qurl <- paste(submissionURL, "GrapleRunResults", experimentId, sep="/")
   status<- getURL(qurl)
 
@@ -111,6 +112,7 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
   file.remove("results.tar.gz")
   files <- list.files(".")
   lapply(files, function(x){untar(x); file.remove(x)})
+  setwd(td)
   return(resultfile)
 }
 
@@ -118,7 +120,7 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
 #' @description
 #' This function allows you to run an experiment using a single simulation.
 #' The sweep parameters are used to generate the other sims.
-#' @param submissionURL URL:Port of the GrapeR service
+#' @param submissionURL URL:Port of the GRAPLEr web service
 #' @param simDir the simulation folder containing the driver file
 #' @param driverFileName the driver file name
 #' @param parameterName the column name from the driver file to be swept
@@ -131,7 +133,7 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
 #' @export
 #' @examples
 #' \dontrun{
-#' simDir="C:/Workspace/SimRoot/Sim0"
+#' simDir="./Workspace/ExpRoot/Exp0"
 #' driverFileName="met_hourly.csv"
 #' parameterName="AirTemp"
 #' startValue=-2
@@ -188,7 +190,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 #' Parametername1, add, uniform, -1, 1
 #' Paramtername2, sub, binomial, 10, 0.5
 
-#' @param submissionURL URL:Port of the GrapleR service
+#' @param submissionURL URL:Port of the GRAPLEr web service
 #' @param simDir the simulation folder containing the driver file
 #' @param FilterName the name of post-process filter
 #' @return the experiment ID
@@ -196,7 +198,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
 #' @export
 #' @examples
 #' \dontrun{
-#' simDir="C:/Workspace/SimRoot"
+#' simDir="./Workspace/ExpRoot/Exp0"
 #' FilterName="Filter1.R"
 #' expId<-GrapleRunExperimentJob(graplerURL, simDir, FilterName)
 #' }
@@ -220,7 +222,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
   if (file.exists(tarfile)) file.remove(tarfile)
   unlink("../tempGRAPLE", recursive = TRUE)
   print(status)
-  expid <- substr(status[1], start=56, stop=95)
+  expid <- substr(status[1], start=57, stop=96)
   setwd(td)
   return (expid)
 }
@@ -229,7 +231,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
 #' @description
 #' This function allows you to retrieve the complete results
 #' of an sweep job style experiment.
-#' @param submissionURL URL:Port of the GrapeR service
+#' @param submissionURL URL:Port of the GRAPLEr web service
 #' @param experimentId Experiment ID returned from GrapleRunExperiment
 #' or GrapleRunExperimentSweep
 #' @return a string describing the fully qualified result file name
@@ -237,12 +239,13 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
 #' @export
 #' @examples
 #' \dontrun{
-#' graplerURL<-"http://128.227.150.20:80"
+#' graplerURL<-"http://graple-service.cloudapp.net"
 #' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
 #' GrapleGetExperimentJobResults(graplerURL, expId)
 #' }
 GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
 {
+  td<-getwd()
   qurl <- paste(submissionURL, "GrapleRunResultsMetSample", experimentId, sep="/")
   status<- getURL(qurl)
 
@@ -257,5 +260,6 @@ GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
   file.remove("results.tar.gz")
   files <- list.files(".", pattern = "\\.bz2\\.tar$")
   lapply(files, function(x){untar(x); file.remove(x)})
+  setwd(td)
   return(resultfile)
 }
