@@ -3,7 +3,7 @@
   packageStartupMessage("GRAPLEr has been developed with support from a supplement the the PRAGMA award (NSF OCI-1234983). For more information, please visit graple.org")
 }
 
-#' @title Get the Graple Service Status
+#' @title Get the GRAPLEr Service Status
 #' @description
 #' This function allows you to check the staus of the GRAPLEr web service.
 #' @param submissionURL URL:Port of the GRAPLEr web service
@@ -18,10 +18,10 @@ GrapleCheckService<-function(submissionURL)
 {
   qurl<-paste(submissionURL, "service_status", sep="/")
   status<- getURL(qurl)
-  return(status)
+  return(fromJSON(status))
 }
 
-#' @title Sends the experiment (multiple simulations) to be run on GrapleR
+#' @title Sends the experiment (multiple simulations) to be run on GWS
 #' This function allows you to run graple with an optional post-process filtering of results
 #' @param submissionURL URL:Port of the GRAPLEr web service
 #' @param ExperimentDir the experiment root folder
@@ -57,7 +57,7 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
   return (substr(expid[1], start=13, stop=52))
 }
 
-#' @title Check the Graple Experiment Status
+#' @title Check the GRAPLEr Experiment Status
 #' @description
 #' This function allows you to check the staus of the GRAPLEr web service.
 #' @param submissionURL URL:Port of the GRAPLEr web service
@@ -76,10 +76,10 @@ GrapleCheckExperimentCompletion <- function(submissionURL, experimentId)
 {
   qurl <- paste(submissionURL, "GrapleRunStatus", experimentId, sep="/")
   status<- getURL(qurl)
-  return (status)
+  return (fromJSON(status))
 }
 
-#' @title Gets the Graple Experiment Results
+#' @title Gets the GRAPLEr Experiment Results
 #' @description
 #' This function allows you to retrieve the complete results
 #' of an experiment.
@@ -227,7 +227,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
   return (expid)
 }
 
-#' @title Gets the Graple Experiment Job Results
+#' @title Gets the GRAPLEr Experiment Job Results
 #' @description
 #' This function allows you to retrieve the complete results
 #' of an sweep job style experiment.
@@ -262,4 +262,27 @@ GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
   lapply(files, function(x){untar(x); file.remove(x)})
   setwd(td)
   return(resultfile)
+}
+
+#' @title Aborts an existing GRAPLE experiment
+#' @description
+#' This function allows you to terminate a previously submitted experiment using
+#' its experiment identifier. This is useful for aborting stalled or failed experiments.
+#' @param submissionURL URL:Port of the GRAPLEr web service
+#' @param experimentId Experiment ID returned from GrapleRunExperiment
+#' or GrapleRunExperimentSweep
+#' @return a status string
+#' @keywords Graple AbortExperiment
+#' @export
+#' @examples
+#' \dontrun{
+#' graplerURL<-"http://graple-service.cloudapp.net"
+#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
+#' GrapleAbortExperiment(graplerURL, expId)
+#' }
+GrapleAbortExperiment <- function(submissionURL, experimentId)
+{
+  qurl <- paste(submissionURL, "GrapleAbort", experimentId, sep="/")
+  status<- getURL(qurl)
+  return (fromJSON(status))
 }

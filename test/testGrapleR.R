@@ -1,28 +1,26 @@
 #install_github("GRAPLE/GrapleR")
 library("bitops")
 library("RCurl")
+library("jsonlite")
 library('GLMr')
 library("glmtools")
 library("GRAPLEr")
 
 graplerURL<-"http://graple.acis.ufl.edu"
-#graplerURL<-"http://graple-service.cloudapp.net"
 print(GrapleCheckService(graplerURL))
 
 #Experiment 1
 expRootDir<-"c:/ExpRoot/Exp1"
 setwd(expRootDir)
-
 expId1<-GrapleRunExperiment(graplerURL, expRootDir)
 GrapleCheckExperimentCompletion(graplerURL, expId1)
 GrapleGetExperimentResults(graplerURL, expId1)
-
+GrapleAbortExperiment(graplerURL, expId1)
 
 #Experiment 2 - w/ Filter
 expRootDir<-"c:/ExpRoot/Exp2"
 filterName <- "Filter1.R"
 setwd(expRootDir)
-
 expId2<-GrapleRunExperiment(graplerURL, expRootDir, filterName)
 GrapleCheckExperimentCompletion(graplerURL, expId2)
 GrapleGetExperimentResults(graplerURL, expId2)
@@ -66,3 +64,10 @@ setwd(simDir6)
 expId6<-GrapleRunExperimentJob(graplerURL, simDir6, filterName)
 GrapleCheckExperimentCompletion(graplerURL, expId6)
 GrapleGetExperimentJobResults(graplerURL, expId6)
+
+#Experiment 7
+expRootDir<-"c:/ExpRoot/Exp1"
+setwd(expRootDir)
+expId1<-GrapleRunExperiment(graplerURL, expRootDir)
+GrapleCheckExperimentCompletion(graplerURL, expId1)
+GrapleAbortExperiment(graplerURL, expId1)
