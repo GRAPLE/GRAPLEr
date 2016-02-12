@@ -18,7 +18,7 @@ GrapleCheckService<-function(submissionURL)
 {
   qurl<-paste(submissionURL, "service_status", sep="/")
   status<- getURL(qurl)
-  return(status)
+  return(fromJSON(status))
 }
 
 #' @title Sends the experiment (multiple simulations) to be run on GrapleR
@@ -76,7 +76,7 @@ GrapleCheckExperimentCompletion <- function(submissionURL, experimentId)
 {
   qurl <- paste(submissionURL, "GrapleRunStatus", experimentId, sep="/")
   status<- getURL(qurl)
-  return (status)
+  return (fromJSON(status))
 }
 
 #' @title Gets the Graple Experiment Results
@@ -153,7 +153,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   qurl <- paste(submissionURL, "GrapleRunMetOffset", sep="/")
 
   status <- postForm(qurl, files=fileUpload(tarfile))
-  print(status)
+  print(fromJSON(status))
   expid <- substr(status[1], start=13, stop=52)
 
   if (file.exists(tarfile)) file.remove(tarfile)
@@ -166,7 +166,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   qurl <- paste(submissionURL, "TriggerSimulation", params, sep="/")
   print(qurl)
   status = postForm(qurl, t="none")
-  print(paste0("Status:", status))
+  print(paste0("Status:", fromJSON(status)))
   #if(status <> "Success") print("Failed to start experiment")
   setwd(td)
   return (expid)
@@ -219,8 +219,8 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
   status <- postForm(qurl, files=fileUpload(tarfile))
   if (file.exists(tarfile)) file.remove(tarfile)
   unlink("../tempGRAPLE", recursive = TRUE)
-  print(status)
-  expid <- substr(status[1], start=56, stop=95)
+  print(fromJSON(status))
+  expid <- substr(status[1], start=57, stop=96)
   setwd(td)
   return (expid)
 }
