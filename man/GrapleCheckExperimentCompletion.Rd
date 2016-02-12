@@ -7,7 +7,7 @@
 GrapleCheckExperimentCompletion(submissionURL, experimentId)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapleR service}
+\item{submissionURL}{URL:Port of the GRAPLEr web service}
 
 \item{experimentId}{Experiment ID returned from GrapleRunExperiment
 or GrapleRunExperimentSweep}
@@ -16,11 +16,11 @@ or GrapleRunExperimentSweep}
 a string describing experiment status
 }
 \description{
-This function allows you to check the staus of the GrapleR service.
+This function allows you to check the staus of the GRAPLEr web service.
 }
 \examples{
 \dontrun{
-graplerURL<-"http://128.227.150.20:80"
+graplerURL<-"http://graple-service.cloudapp.net"
 expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
 GrapleCheckExperimentCompletion(graplerURL, expId)
 }

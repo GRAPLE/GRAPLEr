@@ -8,7 +8,7 @@ GrapleRunExperimentSweep(submissionURL, simDir, driverFileName, parameterName,
   startValue, endValue, numberOfIncrements, filterName)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GrapeR service}
+\item{submissionURL}{URL:Port of the GRAPLEr web service}
 
 \item{simDir}{the simulation folder containing the driver file}
 
@@ -33,7 +33,7 @@ The sweep parameters are used to generate the other sims.
 }
 \examples{
 \dontrun{
-simDir="C:/Workspace/SimRoot/Sim0"
+simDir="./Workspace/ExpRoot/Exp0"
 driverFileName="met_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
