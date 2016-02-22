@@ -11,7 +11,7 @@ graplerURL<-"http://graple.acis.ufl.edu"
 print(GrapleCheckService(graplerURL))
 
 #Experiment 1
-expRootDir<-"c:/ExpRoot/Exp1"
+expRootDir<-"~/work/SimRoot1/Exp1"
 setwd(expRootDir)
 expId1<-GrapleRunExperiment(graplerURL, expRootDir)
 GrapleCheckExperimentCompletion(graplerURL, expId1)
@@ -19,7 +19,7 @@ GrapleGetExperimentResults(graplerURL, expId1)
 GrapleAbortExperiment(graplerURL, expId1)
 
 #Experiment 2 - w/ Filter
-expRootDir<-"c:/ExpRoot/Exp2"
+expRootDir<-"~/work/SimRoot1/Exp2"
 filterName <- "Filter1.R"
 setwd(expRootDir)
 expId2<-GrapleRunExperiment(graplerURL, expRootDir, filterName)
@@ -27,7 +27,7 @@ GrapleCheckExperimentCompletion(graplerURL, expId2)
 GrapleGetExperimentResults(graplerURL, expId2)
 
 #Experiment 3
-simDir3="c:/ExpRoot/Exp3"
+simDir3="~/work/SimRoot1/Exp3"
 driverFileName="met_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
@@ -39,7 +39,7 @@ GrapleCheckExperimentCompletion(graplerURL, expId3)
 GrapleGetExperimentResults(graplerURL, expId3)
 
 #Experiment 4 - w/ Filter
-simDir4="c:/ExpRoot/Exp4"
+simDir4="~/work/SimRoot1/Exp4"
 driverFileName="met_hourly.csv"
 parameterName="AirTemp"
 startValue=-2
@@ -52,7 +52,7 @@ GrapleCheckExperimentCompletion(graplerURL, expId4)
 GrapleGetExperimentResults(graplerURL, expId4)
 
 #Experiment 5
-simDir5="c:/ExpRoot/Exp5"
+simDir5="~/work/SimRoot1/Exp5"
 setwd(simDir5)
 expId5 <- GrapleRunExperimentJob(graplerURL, simDir5)
 GrapleCheckExperimentCompletion(graplerURL, expId5)
@@ -67,7 +67,7 @@ GrapleCheckExperimentCompletion(graplerURL, expId6)
 GrapleGetExperimentJobResults(graplerURL, expId6)
 
 #Experiment 7
-expRootDir<-"c:/ExpRoot/Exp1"
+expRootDir<-"~/work/SimRoot1/Exp1"
 setwd(expRootDir)
 expId1<-GrapleRunExperiment(graplerURL, expRootDir)
 GrapleCheckExperimentCompletion(graplerURL, expId1)
