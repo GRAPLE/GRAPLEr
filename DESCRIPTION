@@ -11,10 +11,8 @@ Depends:
     R (>= 3.1.3)
 Imports:
 	bitops,
-    ncdf,
+	jsonlite,
     RCurl,
-    GLMr,
-    glmtools,
 License: GPL-3
 URL: http://graple.github.io/
 LazyData: true
