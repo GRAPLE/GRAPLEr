@@ -2,7 +2,7 @@
 % Please edit documentation in R/GrapleR.R
 \name{GrapleRunExperiment}
 \alias{GrapleRunExperiment}
-\title{Sends the experiment (multiple simulations) to be run on GrapleR
+\title{Sends the experiment (multiple simulations) to be run on GWS
 This function allows you to run graple with an optional post-process filtering of results}
 \usage{
 GrapleRunExperiment(submissionURL, ExperimentDir, FilterName)

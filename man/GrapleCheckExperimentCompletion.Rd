@@ -2,7 +2,7 @@
 % Please edit documentation in R/GrapleR.R
 \name{GrapleCheckExperimentCompletion}
 \alias{GrapleCheckExperimentCompletion}
-\title{Check the Graple Experiment Status}
+\title{Check the GRAPLEr Experiment Status}
 \usage{
 GrapleCheckExperimentCompletion(submissionURL, experimentId)
 }
