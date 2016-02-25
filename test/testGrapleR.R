@@ -1,9 +1,8 @@
-#install_github("GRAPLE/GrapleR")
+#install.packages("devtools")
+#devtools::install_github("klutometis/roxygen")
+#devtools::install_github("GRAPLE/GRAPLEr")
 library("bitops")
 library("RCurl")
-library("jsonlite")
-library('GLMr')
-library("glmtools")
 library("jsonlite")
 library("GRAPLEr")
 

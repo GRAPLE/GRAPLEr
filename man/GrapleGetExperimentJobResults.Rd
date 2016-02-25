@@ -2,7 +2,7 @@
 % Please edit documentation in R/GrapleR.R
 \name{GrapleGetExperimentJobResults}
 \alias{GrapleGetExperimentJobResults}
-\title{Gets the Graple Experiment Job Results}
+\title{Gets the GRAPLEr Experiment Job Results}
 \usage{
 GrapleGetExperimentJobResults(submissionURL, experimentId)
 }

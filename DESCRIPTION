@@ -1,21 +1,24 @@
 Package: GRAPLEr
 Title: Distributed computing made easy for lake ecology modeling
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(person("Ken", "S", role = c("aut", "cre"),
   	     email = "kcratie@acis.ufl.edu"),
 	      person("Renato", "F", role = "cph"),
 	      person("Saumitra", "A", role = "ctb",
 		     email = "dr.graple@acis.ufl.edu"))
-Description: GRAPLEr brings the power of distributing computing to the fingertips of lake ecology modelers. It is an R Package for connecting to the GRAPLE Web Service (GWS) and running GRAPLE jobs. Experiments consisting  of thousands of simulations can be evaluated in a fraction of the time by submitting batches of GLM (General Lake Model) simulations to a distributed computing system, directly from your R/RStudio environment.
+Description: GRAPLEr brings the power of distributing computing to the
+    fingertips of lake ecology modelers. It is an R Package for connecting to
+    the GRAPLE Web Service (GWS) and running GRAPLE jobs. Experiments consisting
+    of thousands of simulations can be evaluated in a fraction of the time by
+    submitting batches of GLM (General Lake Model) simulations to a distributed
+    computing system, directly from your R/RStudio environment.
 Depends:
-    R (>= 3.1.3)
+    R (>= 3.1.1)
 Imports:
-	bitops,
-    ncdf,
+    bitops,
+    jsonlite,
     RCurl,
-    GLMr,
-    glmtools,
 License: GPL-3
 URL: http://graple.github.io/
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.1.9000

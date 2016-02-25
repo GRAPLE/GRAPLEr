@@ -2,7 +2,7 @@
 % Please edit documentation in R/GrapleR.R
 \name{GrapleCheckService}
 \alias{GrapleCheckService}
-\title{Get the Graple Service Status}
+\title{Get the GRAPLEr Service Status}
 \usage{
 GrapleCheckService(submissionURL)
 }
