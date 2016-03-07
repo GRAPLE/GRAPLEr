@@ -110,7 +110,7 @@ GrapleGetExperimentResults <- function(submissionURL, experimentId)
   setwd("Results")
   untar("results.tar.gz")
   file.remove("results.tar.gz")
-  files <- list.files(".")
+  files <- list.files(".tar.gz")
   lapply(files, function(x){untar(x); file.remove(x)})
   setwd(td)
   return(resultfile)
@@ -224,7 +224,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
 
   print(fromJSON(status))
 
-  pid <- substr(status[1], start=57, stop=96)
+  expid <- substr(status[1], start=56, stop=95)
 setwd(td)
   return (expid)
 }
