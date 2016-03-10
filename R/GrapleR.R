@@ -224,7 +224,7 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
 
   print(fromJSON(status))
 
-  pid <- substr(status[1], start=57, stop=96)
+  expid <- substr(status[1], start=56, stop=95)
 setwd(td)
   return (expid)
 }
