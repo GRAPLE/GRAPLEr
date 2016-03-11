@@ -1,6 +1,6 @@
 Package: GRAPLEr
 Title: Distributed computing made easy for lake ecology modeling
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(person("Ken", "S", role = c("aut", "cre"),
   	     email = "kcratie@acis.ufl.edu"),
 	      person("Renato", "F", role = "cph"),
@@ -19,6 +19,6 @@ Imports:
     jsonlite,
     RCurl,
 License: GPL-3
-URL: http://graple.github.io/
+URL: http://graple.org/
 LazyData: true
-RoxygenNote: 5.0.1.9000
+RoxygenNote: 5.0.1

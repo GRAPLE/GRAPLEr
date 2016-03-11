@@ -19,8 +19,8 @@ the experiment ID
 \description{
 This function allows you to run an experiment using a single simulation.
 Create an archive that contains:
-1. data csv file.
-2. .nml file
+1. Met (csv) file.
+2. Driver (nml) file
 3. job_desc.csv file (the name has to be job_desc.csv)
 4. (optional) A FilterParams Directory, which consists of a "FilterParams.txt" file
 
