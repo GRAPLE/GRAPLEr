@@ -221,11 +221,8 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
   status <- postForm(qurl, files=fileUpload(tarfile))
   if (file.exists(tarfile)) file.remove(tarfile)
   unlink("../tempGRAPLE", recursive = TRUE)
-
-  print(fromJSON(status))
-
-  pid <- substr(status[1], start=57, stop=96)
-setwd(td)
+  expid <- substr(status[1], start=57, stop=96)
+  setwd(td)
   return (expid)
 }
 
