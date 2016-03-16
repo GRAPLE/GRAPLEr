@@ -40,6 +40,12 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
   td<-getwd()
   setwd(ExperimentDir)
   simdirs <- dir(".")
+  if("Results" %in% simdirs) {
+      print("Results found in experiment directory!")
+      print("Please delete and run the experiment")
+      return (NA)
+  }
+
   tarfile = file.path(ExperimentDir, "sim.tar.gz")
   tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
@@ -98,6 +104,12 @@ GrapleCheckExperimentCompletion <- function(submissionURL, experimentId)
 GrapleGetExperimentResults <- function(submissionURL, experimentId)
 {
   td<-getwd()
+  if("Results" %in% dir()) {
+      print("Results found in experiment directory!")
+      print("Please delete and then get the experiment results")
+      return (NA)
+  }
+
   qurl <- paste(submissionURL, "GrapleRunResults", experimentId, sep="/")
   status<- getURL(qurl)
 
@@ -150,6 +162,11 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   setwd("../tempGRAPLE")
   tarfile = file.path(simDir, "sim.tar.gz")
   setwd(simDir)
+  if("Results" %in% dir()) {
+      print("Results found in experiment directory!")
+      print("Please delete and run the experiment")
+      return (NA)
+  }
   tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
 
   qurl <- paste(submissionURL, "GrapleRunMetOffset", sep="/")
@@ -210,6 +227,11 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
   setwd("../tempGRAPLE")
   tarfile = file.path(getwd(), "sweepexp.tar.gz")
   setwd(simDir)
+  if("Results" %in% dir()) {
+      print("Results found in experiment directory!")
+      print("Please delete and run the experiment")
+      return (NA)
+  }
   tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
   if(missing(FilterName)){
     qurl <- paste(submissionURL, "GrapleRunMetSample", sep="/")
@@ -245,6 +267,11 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
 GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
 {
   td<-getwd()
+  if("Results" %in% dir()) {
+      print("Results found in experiment directory!")
+      print("Please delete and get the experiment results")
+      return (NA)
+  }
   qurl <- paste(submissionURL, "GrapleRunResultsMetSample", experimentId, sep="/")
   status<- getURL(qurl)
 
