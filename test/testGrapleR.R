@@ -59,7 +59,7 @@ GrapleCheckExperimentCompletion(graplerURL, expId5)
 GrapleGetExperimentJobResults(graplerURL, expId5)
 
 #Experiment 6 - w/ Filter
-simDir6="C:/ExpRoot/Exp6"
+simDir6="~/work/SimRoot1/Exp6"
 filterName = "Filter1.R"
 setwd(simDir6)
 expId6<-GrapleRunExperimentJob(graplerURL, simDir6, filterName)
