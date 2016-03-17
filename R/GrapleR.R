@@ -250,7 +250,7 @@ setMethod(f="GrapleGetExperimentResults",
               setwd(theObject@ResultsDir)
               untar("results.tar.gz")
               file.remove("results.tar.gz")
-              files <- list.files(".")
+              files <- list.files(".", pattern = "\\.bz2\\.tar$")
               lapply(files, function(x){untar(x); file.remove(x)})
               setwd(td)
               theObject@StatusCode <- 1
@@ -265,11 +265,10 @@ setMethod(f="GrapleRunSweepExperiment",
           definition=function(theObject, filterName)
           {
             td<-getwd()
-            unlink("../tempGRAPLE", recursive = TRUE)
-            dir.create("../tempGRAPLE")
-            setwd("../tempGRAPLE")
+            setwd(theObject@TempDir)
+            if(file.exists("sim.tar.gz")) file.remove("sweepexp.tar.gz")
             tarfile = file.path(getwd(), "sweepexp.tar.gz")
-            setwd(simDir)
+            setwd(theObject@ExpRootDir)
             tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
             if(missing(filterName)){
               qurl <- paste(theObject@GWSURL, "GrapleRunMetSample", sep="/")
@@ -279,14 +278,15 @@ setMethod(f="GrapleRunSweepExperiment",
             }
 
             status <- postForm(qurl, files=fileUpload(tarfile))
+            theObject@JobID <- toString(fromJSON(status)[2])
+            if(nchar(theObject@JobID) == 40){
+              theObject@StatusCode <- 1
+              theObject@StatusMsg <- "The simulation was submitted successfully"
+            }
+
             if (file.exists(tarfile)) file.remove(tarfile)
-            unlink("../tempGRAPLE", recursive = TRUE)
-
-            print(fromJSON(status))
-
-            pid <- substr(status[1], start=57, stop=96)
             setwd(td)
-            return (expid)
+            return (theObject)
           }
 )
 
@@ -295,22 +295,26 @@ setMethod(f="GrapleGetExperimentJobResults",
           definition=function(theObject)
           {
             td<-getwd()
-            qurl <- paste(theObject@GWSURL, "GrapleRunResultsMetSample", experimentId, sep="/")
+            qurl <- paste(theObject@GWSURL, "GrapleRunResultsMetSample", theObject@JobID, sep="/")
             status<- getURL(qurl)
 
-            qurl <- paste(submissionURL, experimentId, "Results", "output.tar.gz", sep="/")
-            resultfile <- file.path(getwd(),  "results.tar.gz")
-            download.file(qurl, resultfile)
-            dir.create("Results")
-            file.copy("results.tar.gz", "Results/")
-            file.remove("results.tar.gz")
-            setwd("Results")
-            untar("results.tar.gz")
-            file.remove("results.tar.gz")
-            files <- list.files(".", pattern = "\\.bz2\\.tar$")
-            lapply(files, function(x){untar(x); file.remove(x)})
-            setwd(td)
-            return(resultfile)
+            if(toString(fromJSON(status)[2]) == "success"){
+              qurl <- paste(theObject@GWSURL, theObject@JobID, "Results", "output.tar.gz", sep="/")
+              resultfile <- file.path(theObject@TempDir,  "results.tar.gz")
+              download.file(qurl, resultfile)
+              setwd(theObject@TempDir)
+              file.copy("results.tar.gz", theObject@ResultsDir)
+              file.remove("results.tar.gz")
+              setwd(theObject@ResultsDir)
+              untar("results.tar.gz")
+              file.remove("results.tar.gz")
+              files <- list.files(".", pattern = "\\.bz2\\.tar$")
+              lapply(files, function(x){untar(x); file.remove(x)})
+              setwd(td)
+              theObject@StatusCode <- 1
+              theObject@StatusMsg <- 'The results have been downloaded to Results directory provided'
+              return(theObject)
+            }
           }
 )
 

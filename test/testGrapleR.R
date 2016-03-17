@@ -22,4 +22,14 @@ grapleExp2Obj <- GrapleRunExperiment(grapleExp2Obj, filterName);grapleExp2Obj@St
 grapleExp2Obj <- GrapleCheckExperimentCompletion(grapleExp2Obj);grapleExp2Obj@StatusMsg
 grapleExp2Obj <- GrapleGetExperimentResults(grapleExp2Obj);grapleExp2Obj@StatusMsg
 
+#Experiment3
+grapleExp3Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp3", ResultsDir="C:/Workspace/Results/Exp3", TempDir = tempdr)
+grapleExp3Obj <- GrapleRunSweepExperiment(grapleExp3Obj);grapleExp3Obj@StatusMsg
+grapleExp3Obj <- GrapleCheckExperimentCompletion(grapleExp3Obj);grapleExp3Obj@StatusMsg
+grapleExp3Obj <- GrapleGetExperimentJobResults(grapleExp3Obj);grapleExp3Obj@StatusMsg
 
+#Experiment4
+grapleExp4Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp4", ResultsDir="C:/Workspace/Results/Exp4", TempDir = tempdr)
+grapleExp4Obj <- GrapleRunSweepExperiment(grapleExp4Obj);grapleExp4Obj@StatusMsg
+grapleExp4Obj <- GrapleCheckExperimentCompletion(grapleExp4Obj);grapleExp4Obj@StatusMsg
+grapleExp4Obj <- GrapleGetExperimentJobResults(grapleExp4Obj);grapleExp4Obj@StatusMsg
