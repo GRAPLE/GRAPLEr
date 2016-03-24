@@ -10,22 +10,33 @@ graple <- GrapleCheckService(graple)
 graple@StatusMsg
 
 #Experiment1
-grapleExp1Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp1", ResultsDir="C:/Workspace/Results/Exp1", TempDir = tempdr)
-grapleExp1Obj <- GrapleRunExperiment(grapleExp1Obj);grapleExp1Obj@StatusMsg
-grapleExp1Obj <- GrapleCheckExperimentCompletion(grapleExp1Obj);grapleExp1Obj@StatusMsg
-grapleExp1Obj <- GrapleGetExperimentResults(grapleExp1Obj);grapleExp1Obj@StatusMsg
+grapleExpObj1 <- Graple(ExpRootDir="C:/Users/kcratie/workspace/ExpRoot/Exp1", ResultsDir="C:/Users/kcratie/workspace/Results/Exp1", TempDir = tempdr)
+grapleExpObj1@ExpName="Experiment1"
+grapleExpObj1 <- GrapleRunExperiment(grapleExpObj1);grapleExpObj1@StatusMsg
+grapleExpObj1 <- GrapleCheckExperimentCompletion(grapleExpObj1);
+while (grapleExpObj1@StatusMsg != 'completed') {
+  Sys.sleep(5);
+  grapleExpObj1 <- GrapleCheckExperimentCompletion(grapleExpObj1);  
+  print(grapleExpObj1@StatusMsg);
+}
+grapleExpObj1 <- GrapleGetExperimentResults(grapleExpObj1);grapleExpObj1@StatusMsg
 
 #Experiment2
 filterName <- "Filter1.R"
-grapleExp2Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp2", ResultsDir="C:/Workspace/Results/Exp2", TempDir = tempdr)
-grapleExp2Obj <- GrapleRunExperiment(grapleExp2Obj, filterName);grapleExp2Obj@StatusMsg
-grapleExp2Obj <- GrapleCheckExperimentCompletion(grapleExp2Obj);grapleExp2Obj@StatusMsg
-grapleExp2Obj <- GrapleGetExperimentResults(grapleExp2Obj);grapleExp2Obj@StatusMsg
+grapleExpObj2 <- Graple(ExpRootDir="C:/ExpRoot/Exp2", ResultsDir="C:/Workspace/Results/Exp2", TempDir = tempdr)
+grapleExpObj2 <- GrapleRunExperiment(grapleExpObj2, filterName);grapleExpObj2@StatusMsg
+grapleExpObj2 <- GrapleCheckExperimentCompletion(grapleExpObj2);grapleExpObj2@StatusMsg
+grapleExpObj2 <- GrapleGetExperimentResults(grapleExpObj2);grapleExpObj2@StatusMsg
 
 #Experiment3
-grapleExp3Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp3", ResultsDir="C:/Workspace/Results/Exp3", TempDir = tempdr)
+grapleExp3Obj <- Graple(ExpRootDir="C:/Users/kcratie/workspace/ExpRoot/Exp3", ResultsDir="C:/Users/kcratie/workspace/Results/Exp3", TempDir = tempdr)
 grapleExp3Obj <- GrapleRunSweepExperiment(grapleExp3Obj);grapleExp3Obj@StatusMsg
 grapleExp3Obj <- GrapleCheckExperimentCompletion(grapleExp3Obj);grapleExp3Obj@StatusMsg
+while (grapleExp3Obj@StatusMsg != 'completed') {
+  Sys.sleep(5);
+  grapleExp3Obj <- GrapleCheckExperimentCompletion(grapleExp3Obj);  
+  print(grapleExp3Obj@StatusMsg);
+}
 grapleExp3Obj <- GrapleGetExperimentJobResults(grapleExp3Obj);grapleExp3Obj@StatusMsg
 
 #Experiment4
