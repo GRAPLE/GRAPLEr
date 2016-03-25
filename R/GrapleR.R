@@ -171,7 +171,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   qurl <- paste(submissionURL, "GrapleRunMetOffset", sep="/")
 
   status <- postForm(qurl, files=fileUpload(tarfile))
-  print(status)
+  print(fromJSON(status))
   expid <- substr(status[1], start=13, stop=52)
 
   if (file.exists(tarfile)) file.remove(tarfile)
@@ -184,7 +184,7 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   qurl <- paste(submissionURL, "TriggerSimulation", params, sep="/")
   print(qurl)
   status = postForm(qurl, t="none")
-  print(paste0("Status:", status))
+  print(paste0("Status:", fromJSON(status)))
   #if(status <> "Success") print("Failed to start experiment")
   setwd(td)
   return (expid)
