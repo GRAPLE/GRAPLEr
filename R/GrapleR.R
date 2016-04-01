@@ -40,6 +40,11 @@ GrapleRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
   td<-getwd()
   setwd(ExperimentDir)
   simdirs <- dir(".")
+  if("Results" %in% simdirs) {
+      print("Results found in experiment directory!")
+      print("Please delete and run the experiment")
+      return()
+  }
   tarfile = file.path(ExperimentDir, "sim.tar.gz")
   tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
 
@@ -98,6 +103,11 @@ GrapleCheckExperimentCompletion <- function(submissionURL, experimentId)
 GrapleGetExperimentResults <- function(submissionURL, experimentId)
 {
   td<-getwd()
+  if("Results" %in% dir()) {
+      print("Results found in experiment directory!")
+      print("Please delete and get the results")
+      return()
+  }
   qurl <- paste(submissionURL, "GrapleRunResults", experimentId, sep="/")
   status<- getURL(qurl)
 
@@ -150,6 +160,12 @@ GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, para
   setwd("../tempGRAPLE")
   tarfile = file.path(simDir, "sim.tar.gz")
   setwd(simDir)
+  if("Results" %in% dir()) {
+	  print("Results found in experiment directory!")
+	  print("Please delete and run the experiment")
+	  unlink("../tempGRAPLE", recursive = TRUE)
+	  return()
+  }
   tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
 
   qurl <- paste(submissionURL, "GrapleRunMetOffset", sep="/")
@@ -210,6 +226,12 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
   setwd("../tempGRAPLE")
   tarfile = file.path(getwd(), "sweepexp.tar.gz")
   setwd(simDir)
+  if("Results" %in% dir()) {
+      print("Results found in experiment directory!")
+      print("Please delete and run the experiment")
+      unlink("../tempGRAPLE", recursive = TRUE)
+      return()
+  }
   tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
   if(missing(FilterName)){
     qurl <- paste(submissionURL, "GrapleRunMetSample", sep="/")
@@ -245,6 +267,11 @@ GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
 GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
 {
   td<-getwd()
+  if("Results" %in% dir()) {
+    print("Results found in experiment directory!")
+    print("Please delete and run the experiment")
+    return()
+  }
   qurl <- paste(submissionURL, "GrapleRunResultsMetSample", experimentId, sep="/")
   status<- getURL(qurl)
 
@@ -285,3 +312,48 @@ GrapleAbortExperiment <- function(submissionURL, experimentId)
   status<- getURL(qurl)
   return (fromJSON(status))
 }
+
+#' @title Retrieves the list of post process operation scripts
+#' @description
+#' This function allows you to retrieve list of all the post-process operation scripts
+#' @param submissionURL URL:Port of the GRAPLEr web service
+#' @return a comma seperated string of file names
+#' @keywords Graple ListFilters
+#' @export
+#' @examples
+#' \dontrun{
+#' graplerURL<-"http://graple-service.cloudapp.net"
+#' GrapleListFilters(graplerURL)
+#' }
+GrapleListFilters <- function(submissionURL)
+{
+  qurl <- paste(submissionURL, "GrapleListFilters", sep="/")
+  status <- getURL(qurl)
+  return (toString(fromJSON(status)))
+}
+
+#' @title Checks version compatibility between R package and Graple web service
+#' @description
+#' This function allows you to check version compatibility between R package and
+#' Graple Web Service
+#' @param submissionURL URL:Port of the GRAPLEr web service
+#' @return true if versions are compatible else false
+#' @keywords Graple CheckVersionCompatibility
+#' @export
+#' @examples
+#' \dontrun{
+#' graplerURL<-"http://graple-service.cloudapp.net"
+#' GrapleCheckVersionCompatibility(graplerURL)
+#' }
+GrapleCheckVersionCompatibility <- function(submissionURL)
+{
+  compatibleVersions <- c(packageVersion("GRAPLEr"), "1.0.2")
+  qurl <- paste(submissionURL, "GrapleGetVersion", sep="/")
+  status <- getURL(qurl)
+  serviceVersion <- fromJSON(status)
+  if(serviceVersion %in% compatibleVersions)
+    return(TRUE)
+  else
+    return(TRUE)
+}
+
