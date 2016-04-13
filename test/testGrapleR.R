@@ -10,13 +10,19 @@ graple <- GrapleCheckService(graple)
 graple@StatusMsg
 
 #Experiment1
-grapleExp1Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp1", ResultsDir="C:/Workspace/Results/Exp1", TempDir = tempdr)
+grapleExp1Obj <- graple
+grapleExp1Obj <- setTempDir(grapleExp1Obj, tempdr)
+grapleExp1Obj <- setSubmissionURL(grapleExp1Obj, "http://10.244.37.64:5000")
+grapleExp1Obj <- setExpName(grapleExp1Obj, "Experiment1")
+grapleExp1Obj <- setExperimentDir(grapleExp1Obj, "C:/ExpRoot/Exp1")
+grapleExp1Obj <- setResultsDir(grapleExp1Obj, "C:/Workspace/Results/Exp1")
 grapleExp1Obj <- GrapleRunExperiment(grapleExp1Obj);grapleExp1Obj@StatusMsg
 grapleExp1Obj <- GrapleCheckExperimentCompletion(grapleExp1Obj);grapleExp1Obj@StatusMsg
 grapleExp1Obj <- GrapleGetExperimentResults(grapleExp1Obj);grapleExp1Obj@StatusMsg
 
+
 #Experiment2
-filterName <- "Filter1.R"
+filterName <- "ExtractVariables.R"
 grapleExp2Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp2", ResultsDir="C:/Workspace/Results/Exp2", TempDir = tempdr)
 grapleExp2Obj <- GrapleRunExperiment(grapleExp2Obj, filterName);grapleExp2Obj@StatusMsg
 grapleExp2Obj <- GrapleCheckExperimentCompletion(grapleExp2Obj);grapleExp2Obj@StatusMsg
@@ -29,7 +35,8 @@ grapleExp3Obj <- GrapleCheckExperimentCompletion(grapleExp3Obj);grapleExp3Obj@St
 grapleExp3Obj <- GrapleGetExperimentJobResults(grapleExp3Obj);grapleExp3Obj@StatusMsg
 
 #Experiment4
+filterName <- "Filter1.R"
 grapleExp4Obj <- Graple(ExpRootDir="C:/ExpRoot/Exp4", ResultsDir="C:/Workspace/Results/Exp4", TempDir = tempdr)
-grapleExp4Obj <- GrapleRunSweepExperiment(grapleExp4Obj);grapleExp4Obj@StatusMsg
+grapleExp4Obj <- GrapleRunSweepExperiment(grapleExp4Obj, filterName);grapleExp4Obj@StatusMsg
 grapleExp4Obj <- GrapleCheckExperimentCompletion(grapleExp4Obj);grapleExp4Obj@StatusMsg
 grapleExp4Obj <- GrapleGetExperimentJobResults(grapleExp4Obj);grapleExp4Obj@StatusMsg
