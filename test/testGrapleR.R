@@ -7,7 +7,8 @@ graple <- Graple()
 #The result of the method call is stored in the object itself
 graple <- GrapleCheckService(graple)
 print(graple@StatusMsg)
-
+graple <- GrapleListPostProcessFilters(graple)
+print(graple@StatusMsg)
 graple <- GrapleChkVersionCompatibility(graple)
 print(graple@StatusMsg)
 

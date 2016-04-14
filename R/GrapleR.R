@@ -163,6 +163,13 @@ setGeneric(name="GrapleChkVersionCompatibility",
            }
 )
 
+setGeneric(name="GrapleListPostProcessFilters",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleListPostProcessFilters")
+           }
+)
+
 setMethod(f="setTempDir",
           signature="Graple",
           definition=function(grapleObject,path)
@@ -506,3 +513,14 @@ setMethod(f="GrapleChkVersionCompatibility",
           }
 )
 
+setMethod(f="GrapleListPostProcessFilters",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            qurl <- paste(grapleObject@GWSURL, "GrapleListFilters", sep="/")
+            status<- getURL(qurl)
+            grapleObject@StatusCode <- 1
+            grapleObject@StatusMsg <- paste('The list of post process filters available are :', toString(fromJSON(status)), sep = "")
+            return(grapleObject)
+          }
+)
