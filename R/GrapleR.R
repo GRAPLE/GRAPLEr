@@ -24,7 +24,7 @@ check_graple <- function(object) {
 
   if(length(object@ExpRootDir) > 0)
   {
-    if(!dir.exists(input_dir))
+    if(!dir.exists(object@ExpRootDir))
     {
       msg <- paste("Experiment root directory does not exist")
       errors <- c(errors, msg)
@@ -33,7 +33,7 @@ check_graple <- function(object) {
 
   if(length(object@ResultsDir) > 0)
   {
-    if(!dir.exists(results_dir))
+    if(!dir.exists(object@ResultsDir))
     {
       msg <- paste("Results directory does not exist")
       errors <- c(errors, msg)
@@ -346,8 +346,7 @@ setMethod(f="GrapleGetExperimentResults",
             else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
             {
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,
-                                              please delete and try again", sep ="")
+              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
             }
             else{
               td<-setwd(grapleObject@ResultsDir)
@@ -359,6 +358,7 @@ setMethod(f="GrapleGetExperimentResults",
                 download.file(qurl, resultfile)
                 setwd(grapleObject@TempDir)
                 resultPath <- paste(grapleObject@ResultsDir, getResultsDirName(grapleObject), sep="/")
+                dir.create(resultPath)
                 file.copy("results.tar.gz", resultPath)
                 file.remove("results.tar.gz")
                 setwd(resultPath)
@@ -437,8 +437,7 @@ setMethod(f="GrapleGetExperimentJobResults",
             else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
             {
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,
-                                              please delete and try again", sep ="")
+              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
             }
             else{
               td<-getwd()
@@ -451,6 +450,7 @@ setMethod(f="GrapleGetExperimentJobResults",
                 download.file(qurl, resultfile)
                 setwd(grapleObject@TempDir)
                 resultPath <- paste(grapleObject@ResultsDir, getResultsDirName(grapleObject), sep="/")
+                dir.create(resultPath)
                 file.copy("results.tar.gz", resultPath)
                 file.remove("results.tar.gz")
                 setwd(resultPath)
