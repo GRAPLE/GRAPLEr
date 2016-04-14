@@ -8,6 +8,9 @@ graple <- Graple()
 graple <- GrapleCheckService(graple)
 print(graple@StatusMsg)
 
+graple <- GrapleChkVersionCompatibility(graple)
+print(graple@StatusMsg)
+
 #Batch Experiment
 #
 #Start a new experiment and setup parameters
@@ -21,7 +24,7 @@ print(grapleExp1@StatusMsg)
 
 #check on status and wait until it is ready
 grapleExp1 <- GrapleCheckExperimentCompletion(grapleExp1)
-while (grapleExp1@StatusMsg != 'completed') {
+while (grapleExp1@StatusMsg != '100.0% complete') {
   Sys.sleep(5);
   grapleExp1 <- GrapleCheckExperimentCompletion(grapleExp1) 
   print(grapleExp1@StatusMsg);
@@ -34,7 +37,7 @@ print(grapleExp1@StatusMsg)
 #
 ##Batch Experiment w/ Filter
 #
-filterName <- "Filter1.R"
+filterName <- "ExtractVariables.R"
 grapleExp2 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp2", ResultsDir="D:/GRAPLE/Results/Exp2", TempDir = tempdr)
 grapleExp2 <- GrapleRunExperiment(grapleExp2, filterName);
 grapleExp2 <- GrapleCheckExperimentCompletion(grapleExp2);
@@ -54,7 +57,7 @@ print(grapleExp4@StatusMsg)
 
 grapleExp3 <- GrapleCheckExperimentCompletion(grapleExp3)
 grapleExp4 <- GrapleCheckExperimentCompletion(grapleExp4)
-while (grapleExp3@StatusMsg != 'completed' && grapleExp4@StatusMsg != 'completed') {
+while (grapleExp3@StatusMsg != '100.0% complete' && grapleExp4@StatusMsg != '100.0% complete') {
   Sys.sleep(10);
   grapleExp3 <- GrapleCheckExperimentCompletion(grapleExp3)
   print(paste(grapleExp3@ExpName, grapleExp3@StatusMsg, sep=":"))

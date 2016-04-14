@@ -69,8 +69,8 @@ getResultsDirName <- function(object){
 
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
                                        StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character",
-                                       Retention ="numeric"), prototype = list(GWSURL="http://graple.acis.ufl.edu",
-                                                                                                       TempDir=tempdir()), validity = check_graple)
+                                       Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu",
+                                       TempDir=tempdir(), Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
 setGeneric(name="setTempDir",
            def=function(grapleObject,path)
@@ -153,6 +153,13 @@ setGeneric(name="GrapleAbortExperiment",
            def=function(grapleObject)
            {
              standardGeneric("GrapleAbortExperiment")
+           }
+)
+
+setGeneric(name="GrapleChkVersionCompatibility",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleChkVersionCompatibility")
            }
 )
 
@@ -301,7 +308,7 @@ setMethod(f="GrapleRunExperiment",
               grapleObject@JobID <- toString(fromJSON(expid)[1])
               if(nchar(grapleObject@JobID) == 40){
                 grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- "The simulation was submitted successfully"
+                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
               }
 
               if (file.exists(tarfile)) file.remove(tarfile)
@@ -405,7 +412,7 @@ setMethod(f="GrapleRunSweepExperiment",
               grapleObject@JobID <- toString(fromJSON(status)[2])
               if(nchar(grapleObject@JobID) == 40){
                 grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- "The simulation was submitted successfully"
+                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
               }
 
               if (file.exists(tarfile)) file.remove(tarfile)
@@ -476,3 +483,26 @@ setMethod(f="GrapleAbortExperiment",
             return (fromJSON(status))
           }
 )
+
+setMethod(f="GrapleChkVersionCompatibility",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            if(!length(grapleObject@Client_Version_ID) > 0){
+              grapleObject@Client_Version_ID <- packageVersion("GRAPLEr")
+            }
+            qurl <- paste(grapleObject@GWSURL, "GrapleGetVersion", sep="/")
+            status <- getURL(qurl)
+            compatibleGRAPLEVersions <- fromJSON(status)
+            if(grapleObject@Client_Version_ID %in% compatibleGRAPLEVersions){
+              grapleObject@StatusCode <- 1
+              grapleObject@StatusMsg <- 'GWS and GRAPLEr versions are compatible'
+            }
+            else{
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- paste('GWS and GRAPLEr versions are not compatible, compatible versions are :', compatibleGRAPLEVersions, sep="")
+            }
+            return(grapleObject)
+          }
+)
+
