@@ -27,6 +27,7 @@ grapleExp1 <- setExpName(grapleExp1, "BatchExperiment1")
 #grapleExp1 <- setExperimentDir(grapleExp1, "C:/ExpRoot/Exp1")
 #grapleExp1 <- setResultsDir(grapleExp1, "C:/ExpRoot/Results/Exp1")
 #grapleExp1 <- setTempDir(grapleExp1, "C:/TempDir")
+#grapleExp1 <- setSecurityKey(grapleExp1, 'C:/TempDir/APIKey.txt')
 
 #Run the experiment
 grapleExp1 <- GrapleRunExperiment(grapleExp1);
