@@ -68,7 +68,7 @@ getResultsDirName <- function(object){
 }
 
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
-                                       StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character",
+                                       StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", SecurityKey="character",
                                        Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu",
                                        TempDir=tempdir(), Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
@@ -104,6 +104,13 @@ setGeneric(name="setResultsDir",
            def=function(grapleObject,path)
            {
              standardGeneric("setResultsDir")
+           }
+)
+
+setGeneric(name="setSecurityKey",
+           def=function(grapleObject,path)
+           {
+             standardGeneric("setSecurityKey")
            }
 )
 
@@ -149,10 +156,10 @@ setGeneric(name="GrapleGetExperimentJobResults",
            }
 )
 
-setGeneric(name="GrapleAbortExperiment",
+setGeneric(name="GrapleEndExperiment",
            def=function(grapleObject)
            {
-             standardGeneric("GrapleAbortExperiment")
+             standardGeneric("GrapleEndExperiment")
            }
 )
 
@@ -200,7 +207,7 @@ setMethod(f="setExpName",
           signature="Graple",
           definition=function(grapleObject,expName)
           {
-            if(length(grapleObject@ExpName) > 0)
+            if(length(expName) > 0)
             {
               grapleObject@ExpName <- expName
               grapleObject@StatusCode <- 1
@@ -272,6 +279,29 @@ setMethod(f="setResultsDir",
           }
 )
 
+setMethod(f="setSecurityKey",
+          signature="Graple",
+          definition=function(grapleObject,path)
+          {
+            if(length(path) > 0)
+            {
+              if(!file.exists(path))
+              {
+                grapleObject@StatusCode <- -1
+                grapleObject@StatusMsg <- "File provided does not exist"
+              }
+              else
+              {
+                ##write the logic for reading file content and set the security key
+                grapleObject@SecurityKey <- ''
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- "Security Key has been successfully set"
+              }
+            }
+            return(grapleObject)
+          }
+)
+
 setMethod(f="GrapleCheckService",
           signature="Graple",
           definition=function(grapleObject)
@@ -288,16 +318,15 @@ setMethod(f="GrapleRunExperiment",
           signature="Graple",
           definition=function(grapleObject, filterName)
           {
-            if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Temporary directory provided does not exist"
-            }
-            else if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
+            if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
             }
             else
             {
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
               td<-getwd()
               setwd(grapleObject@TempDir)
               if(file.exists("sim.tar.gz")) file.remove("sim.tar.gz")
@@ -352,17 +381,15 @@ setMethod(f="GrapleGetExperimentResults",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "No JobID, Experiment Job ID not provided"
             }
-            else if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir))
-            {
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Temporary directory provided does not exist"
-            }
             else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
             {
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
             }
             else{
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
               td<-setwd(grapleObject@ResultsDir)
               qurl<-paste(grapleObject@GWSURL, "GrapleRunResults", grapleObject@JobID, sep="/")
               status<- getURL(qurl)
@@ -393,15 +420,14 @@ setMethod(f="GrapleRunSweepExperiment",
           signature="Graple",
           definition=function(grapleObject, filterName)
           {
-            if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Temporary directory provided does not exist"
-            }
-            else if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
+            if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
             }
             else{
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
               td<-getwd()
               setwd(grapleObject@TempDir)
               if(file.exists("sim.tar.gz")) file.remove("sweepexp.tar.gz")
@@ -443,17 +469,15 @@ setMethod(f="GrapleGetExperimentJobResults",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "No JobID, Experiment Job ID not provided"
             }
-            else if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir))
-            {
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Temporary directory provided does not exist"
-            }
             else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
             {
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
             }
             else{
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
               td<-getwd()
               qurl <- paste(grapleObject@GWSURL, "GrapleRunResultsMetSample", grapleObject@JobID, sep="/")
               status<- getURL(qurl)
@@ -481,11 +505,11 @@ setMethod(f="GrapleGetExperimentJobResults",
           }
 )
 
-setMethod(f="GrapleAbortExperiment",
+setMethod(f="GrapleEndExperiment",
           signature="Graple",
           definition=function(grapleObject)
           {
-            qurl <- paste(grapleObject@GWSURL, "GrapleAbort", grapleObject@JobID, sep="/")
+            qurl <- paste(grapleObject@GWSURL, "GrapleEnd", grapleObject@JobID, sep="/")
             status<- getURL(qurl)
             return (fromJSON(status))
           }
