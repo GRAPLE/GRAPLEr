@@ -1,4 +1,3 @@
-
 validate_url <- function(url){
   valid_url <- FALSE
 
@@ -65,6 +64,21 @@ getResultsDirName <- function(object){
     return(object@ExpName)
   else
     return(object@JobID)
+}
+
+filesPresent <- function(object){
+  if(length(list.files(path = object@ExpRootDir, recursive = FALSE)) != length(list.dirs(path = object@ExpRootDir, recursive = FALSE)))
+    return(TRUE)
+  else
+    return(FALSE)
+}
+
+filePresent <- function(dirPath, fileName){
+  filesList <- list.files(path = dirPath, recursive = FALSE)
+  if(fileName %in% filesList)
+    return(TRUE)
+  else
+    return(FALSE)
 }
 
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
@@ -322,6 +336,18 @@ setMethod(f="GrapleRunExperiment",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
             }
+            else if(filesPresent(grapleObject)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain only directories(no files) for this experiment"
+            }
+            else if(!missing(filterName) && !dir.exists(paste(grapleObject@ExpRootDir, "FilterParams", sep="/"))){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment Root Directory should consist of FilterParams Directory"
+            }
+            else if(!missing(filterName) && dir.exists(paste(grapleObject@ExpRootDir, "FilterParams", sep="/")) && !filePresent(paste(grapleObject@ExpRootDir, "FilterParams", sep = "/"), "FilterParams.json")){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "The Filter Params directory does not contain FilterParams.json"
+            }
             else
             {
               if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
@@ -423,6 +449,22 @@ setMethod(f="GrapleRunSweepExperiment",
             if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
+            }
+            else if(!filePresent(grapleObject@ExpRootDir, "job_desc.json")){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "A job description file should be present with name job_desc.json in the ExpRootDir"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 0 && missing(filterName)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain any directories for this experiment"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 1 && !missing(filterName)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain only files and FilterParams Directory"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && dirsPresent != "FilterParams"){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain directory with name FilterParams"
             }
             else{
               if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){

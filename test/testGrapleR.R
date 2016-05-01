@@ -21,7 +21,7 @@ grapleExp1 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp1", ResultsDir="D:/GRAPLE/
 grapleExp1 <- setExpName(grapleExp1, "BatchExperiment1")
 
 # Change SubmissionURL
-#grapleExp1 <- setSubmissionURL(grapleExp1, "http://10.244.37.4:5000")
+# grapleExp1 <- setSubmissionURL(grapleExp1, "http://10.244.37.4:5000")
 
 # Change directories
 #grapleExp1 <- setExperimentDir(grapleExp1, "C:/ExpRoot/Exp1")
@@ -49,7 +49,7 @@ print(grapleExp1@StatusMsg)
 ##Batch Experiment w/ Filter
 #
 filterName <- "ExtractVariables.R"
-grapleExp2 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp2", ResultsDir="D:/GRAPLE/Results/Exp2", TempDir = tempdr)
+grapleExp2 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp2", ResultsDir="D:/GRAPLE/Results/Exp2", TempDir = tempdir())
 grapleExp2 <- GrapleRunExperiment(grapleExp2, filterName);
 grapleExp2 <- GrapleCheckExperimentCompletion(grapleExp2);
 grapleExp2 <- GrapleGetExperimentResults(grapleExp2);
