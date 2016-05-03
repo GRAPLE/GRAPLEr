@@ -1,3 +1,10 @@
+
+.onAttach <- function(libname, pkgname) {
+  packageStartupMessage("GRAPLEr has been developed with support from a supplement the the PRAGMA award (NSF OCI-1234983) by
+                          Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
+                          For more information, please visit graple.org")
+}
+
 validate_url <- function(url){
   valid_url <- FALSE
 
@@ -160,6 +167,13 @@ setGeneric(name="GrapleRunSweepExperiment",
            def=function(grapleObject, filterName)
            {
              standardGeneric("GrapleRunSweepExperiment")
+           }
+)
+
+setGeneric(name="GrapleRunLinearSweepExperiment",
+           def=function(grapleObject, filterName)
+           {
+             standardGeneric("GrapleRunLinearSweepExperiment")
            }
 )
 
@@ -481,6 +495,61 @@ setMethod(f="GrapleRunSweepExperiment",
               }
               else{
                 qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
+              }
+
+              status <- postForm(qurl, files=fileUpload(tarfile))
+              grapleObject@JobID <- toString(fromJSON(status)[2])
+              if(nchar(grapleObject@JobID) == 40){
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
+              }
+
+              if (file.exists(tarfile)) file.remove(tarfile)
+              setwd(td)
+            }
+            return (grapleObject)
+          }
+)
+
+setMethod(f="GrapleRunLinearSweepExperiment",
+          signature="Graple",
+          definition=function(grapleObject, filterName)
+          {
+            if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
+            }
+            else if(!filePresent(grapleObject@ExpRootDir, "job_desc.json")){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "A job description file should be present with name job_desc.json in the ExpRootDir"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 0 && missing(filterName)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain any directories for this experiment"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 1 && !missing(filterName)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain only files and FilterParams Directory"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && dirsPresent != "FilterParams"){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain directory with name FilterParams"
+            }
+            else{
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
+              td<-getwd()
+              setwd(grapleObject@TempDir)
+              if(file.exists("sim.tar.gz")) file.remove("sweepexp.tar.gz")
+              tarfile = file.path(getwd(), "sweepexp.tar.gz")
+              setwd(grapleObject@ExpRootDir)
+              tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
+              if(missing(filterName)){
+                qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", sep="/")
+              }
+              else{
+                qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, sep="/")
               }
 
               status <- postForm(qurl, files=fileUpload(tarfile))

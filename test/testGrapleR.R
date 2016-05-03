@@ -63,7 +63,7 @@ grapleExp3 <- setExpName(grapleExp3, "SweepExperiment3")
 grapleExp4 <- setExpName(grapleExp4, "SweepExperiment4")
 grapleExp3 <- GrapleRunSweepExperiment(grapleExp3)
 print(grapleExp3@StatusMsg)
-grapleExp4 <- GrapleRunSweepExperiment(grapleExp4)
+grapleExp4 <- GrapleRunLinearSweepExperiment(grapleExp4)
 print(grapleExp4@StatusMsg)
 
 grapleExp3 <- GrapleCheckExperimentCompletion(grapleExp3)
