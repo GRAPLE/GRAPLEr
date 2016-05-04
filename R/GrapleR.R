@@ -531,7 +531,7 @@ setMethod(f="GrapleRunSweepExperiment",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory should contain only files and FilterParams Directory"
             }
-            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE) != "FilterParams"){
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE, full.names = FALSE)[1] != "FilterParams"){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory should contain directory with name FilterParams"
             }
