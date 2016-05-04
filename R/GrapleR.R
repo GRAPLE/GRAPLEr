@@ -92,7 +92,7 @@ validate_json <- function(jsonFilePath)
 {
   valid_JSON <- TRUE
   distribution_type <- ''
-  distribution_types <- list('uniform', 'binomial', 'normal', 'poisson', 'linear')
+  distribution_types <- list('uniform', 'binomial', 'normal', 'poisson')
 
   jsonFile <- fromJSON(jsonFilePath, simplifyVector = FALSE)
 
@@ -124,9 +124,7 @@ validate_json <- function(jsonFilePath)
         }
       }
     }
-    if(steps < 100000)
-      valid_JSON <- TRUE
-    else
+    if(steps >= 100000)
       valid_JSON <- FALSE
   }
   else if(distribution_type == 'non-linear'){
@@ -521,7 +519,7 @@ setMethod(f="GrapleRunSweepExperiment",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "A job description file should be present with name job_desc.json in the ExpRootDir"
             }
-            else if(!(validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))[1])){
+            else if(!as.logical(validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))[1])){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Invalid job_desc file"
             }
@@ -549,14 +547,14 @@ setMethod(f="GrapleRunSweepExperiment",
               tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
               distribution_type <- validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))[2]
               if(missing(filterName)){
-                if(distribution_type <- 'non-linear')
+                if(distribution_type == 'non-linear')
                   qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", sep="/")
                 else
                   qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", sep="/")
               }
               else{
                 filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
-                if(distribution_type <- 'non-linear')
+                if(distribution_type == 'non-linear')
                   qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
                 else
                   qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, sep="/")
