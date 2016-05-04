@@ -48,7 +48,7 @@ print(grapleExp1@StatusMsg)
 #
 ##Batch Experiment w/ Filter
 #
-filterName <- "ExtractVariables.R"
+filterName <- "ExtractVariables"
 grapleExp2 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp2", ResultsDir="D:/GRAPLE/Results/Exp2", TempDir = tempdir())
 grapleExp2 <- GrapleRunExperiment(grapleExp2, filterName);
 grapleExp2 <- GrapleCheckExperimentCompletion(grapleExp2);
