@@ -1,81 +1,83 @@
-#install.packages("devtools")
-#devtools::install_github("klutometis/roxygen")
-#devtools::install_github("GRAPLE/GRAPLEr")
-library("bitops")
-library("RCurl")
-library("jsonlite")
-library("GRAPLEr")
+library(httr)
+library(RCurl)
+library(jsonlite)
+library(GRAPLEr)
 
-graplerURL<-"http://10.244.37.64:5000"
-#graplerURL<-"http://graple.acis.ufl.edu"
-print(GrapleCheckService(graplerURL))
+# Default SubmissionURL is set to http://graple.acis.ufl.edu, use setSubmissionURL method to change submissionURL
+graple <- Graple()
 
-#Returns the list of post-processing scripts available on the server
-print(GrapleListFilters(graplerURL))
+#The result of the method call is stored in the object itself
+graple <- GrapleCheckService(graple)
+print(graple@StatusMsg)
+graple <- GrapleListPostProcessFilters(graple)
+print(graple@StatusMsg)
+graple <- GrapleChkVersionCompatibility(graple)
+print(graple@StatusMsg)
 
-print(GrapleCheckVersionCompatibility(graplerURL))
+#Batch Experiment
+#
+#Start a new experiment and setup parameters
+grapleExp1 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp1", ResultsDir="D:/GRAPLE/Results/Exp1", TempDir = tempdir())
+grapleExp1 <- setExpName(grapleExp1, "BatchExperiment1")
 
-#Experiment 1: Your own handcrafted simulations
-expRootDir<-"c:/ExpRoot/Exp1"
-setwd(expRootDir)
-expId1<-GrapleRunExperiment(graplerURL, expRootDir)
-GrapleCheckExperimentCompletion(graplerURL, expId1)
-GrapleGetExperimentResults(graplerURL, expId1)
+# Change SubmissionURL
+# grapleExp1 <- setSubmissionURL(grapleExp1, "http://10.244.37.4:5000")
 
-#Experiment 2 - Your own handcrafted simulations w/ post processing R-Filter(experimental feature)
-expRootDir<-"c:/ExpRoot/Exp2"
-filterName <- "Filter2.R"
-setwd(expRootDir)
-expId2<-GrapleRunExperiment(graplerURL, expRootDir, filterName)
-GrapleCheckExperimentCompletion(graplerURL, expId2)
-GrapleGetExperimentResults(graplerURL, expId2)
+# Change directories
+#grapleExp1 <- setExperimentDir(grapleExp1, "C:/ExpRoot/Exp1")
+#grapleExp1 <- setResultsDir(grapleExp1, "C:/ExpRoot/Results/Exp1")
+#grapleExp1 <- setTempDir(grapleExp1, "C:/TempDir")
+#grapleExp1 <- setSecurityKey(grapleExp1, 'C:/TempDir/APIKey.txt')
 
-#Experiment 3: An increment type sweep experiment.
-#Paramters are passed directly to funtion on invocation.
-simDir3="c:/ExpRoot/Exp3"
-driverFileName="met_hourly.csv"
-parameterName="AirTemp"
-startValue=-2
-endValue=2
-numberOfIncrements=5
-setwd(simDir3)
-expId3 <- GrapleRunExperimentSweep(graplerURL, simDir3, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
-GrapleCheckExperimentCompletion(graplerURL, expId3)
-GrapleGetExperimentResults(graplerURL, expId3)
+#Run the experiment
+grapleExp1 <- GrapleRunExperiment(grapleExp1);
+print(grapleExp1@StatusMsg)
 
-#Experiment 4: An increment type sweep experiment w/ post processing R-Filter(experimental feature)
-simDir4="c:/ExpRoot/Exp4"
-driverFileName="met_hourly.csv"
-parameterName="AirTemp"
-startValue=-2
-endValue=2
-numberOfIncrements=10
-filterName = "Filter2.R"
-setwd(simDir4)
-expId4<-GrapleRunExperimentSweep(graplerURL, simDir4, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName)
-GrapleCheckExperimentCompletion(graplerURL, expId4)
-GrapleGetExperimentResults(graplerURL, expId4)
+#check on status and wait until it is ready
+grapleExp1 <- GrapleCheckExperimentCompletion(grapleExp1)
+while (grapleExp1@StatusMsg != '100.0% complete') {
+  Sys.sleep(5);
+  grapleExp1 <- GrapleCheckExperimentCompletion(grapleExp1) 
+  print(grapleExp1@StatusMsg);
+}
 
-#Experiment 5: A sweep experiment using using various distributions for generating ranges.
-#Paramters specified via an input file.
-simDir5="c:/ExpRoot/Exp5"
-setwd(simDir5)
-expId5 <- GrapleRunExperimentJob(graplerURL, simDir5)
-GrapleCheckExperimentCompletion(graplerURL, expId5)
-GrapleGetExperimentJobResults(graplerURL, expId5)
+#get the experiment results. Extracted to results dir you specified
+grapleExp1 <- GrapleGetExperimentResults(grapleExp1);
+print(grapleExp1@StatusMsg)
 
-#Experiment 6: A sweep experiment using using various distributions for generating ranges
-#w/ post processing R-Filter(experimental feature)
-simDir6="C:/ExpRoot/Exp6"
-filterName = "Filter2.R"
-setwd(simDir6)
-expId6<-GrapleRunExperimentJob(graplerURL, simDir6, filterName)
-GrapleCheckExperimentCompletion(graplerURL, expId6)
-GrapleGetExperimentJobResults(graplerURL, expId6)
+#
+##Batch Experiment w/ Filter
+#
+filterName <- "ExtractVariables.R"
+grapleExp2 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp2", ResultsDir="D:/GRAPLE/Results/Exp2", TempDir = tempdir())
+grapleExp2 <- GrapleRunExperiment(grapleExp2, filterName);
+grapleExp2 <- GrapleCheckExperimentCompletion(grapleExp2);
+grapleExp2 <- GrapleGetExperimentResults(grapleExp2);
 
-#Experiment 7: Aborting an active or failed experiment
-expRootDir<-"c:/ExpRoot/Exp1"
-setwd(expRootDir)
-expId1<-GrapleRunExperiment(graplerURL, expRootDir)
-GrapleCheckExperimentCompletion(graplerURL, expId1)
-GrapleAbortExperiment(graplerURL, expId1)
+#
+#Multiple Sweep Experiments at once
+#
+grapleExp3 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp3", ResultsDir="D:/GRAPLE/Results/Exp3", TempDir = tempdir())
+grapleExp4 <- Graple(ExpRootDir="D:/GRAPLE/ExpRoot/Exp4", ResultsDir="D:/GRAPLE/Results/Exp4", TempDir = tempdir())
+grapleExp3 <- setExpName(grapleExp3, "SweepExperiment3")
+grapleExp4 <- setExpName(grapleExp4, "SweepExperiment4")
+grapleExp3 <- GrapleRunSweepExperiment(grapleExp3)
+print(grapleExp3@StatusMsg)
+grapleExp4 <- GrapleRunSweepExperiment(grapleExp4)
+print(grapleExp4@StatusMsg)
+
+grapleExp3 <- GrapleCheckExperimentCompletion(grapleExp3)
+grapleExp4 <- GrapleCheckExperimentCompletion(grapleExp4)
+while (grapleExp3@StatusMsg != '100.0% complete' && grapleExp4@StatusMsg != '100.0% complete') {
+  Sys.sleep(10);
+  grapleExp3 <- GrapleCheckExperimentCompletion(grapleExp3)
+  print(paste(grapleExp3@ExpName, grapleExp3@StatusMsg, sep=":"))
+
+  grapleExp4 <- GrapleCheckExperimentCompletion(grapleExp4)
+  print(paste(grapleExp4@ExpName, grapleExp4@StatusMsg, sep = ":"))
+}
+
+grapleExp3 <- GrapleGetExperimentJobResults(grapleExp3)
+print(grapleExp3@StatusMsg)
+grapleExp4 <- GrapleGetExperimentJobResults(grapleExp4)
+print(grapleExp4@StatusMsg)
