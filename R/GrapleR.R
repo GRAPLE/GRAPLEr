@@ -1,8 +1,8 @@
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("GRAPLEr has been developed with support from a supplement the the PRAGMA award (NSF OCI-1234983) by
-                          Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
-                          For more information, please visit graple.org")
+  packageStartupMessage("GRAPLEr has been developed with support from a supplement the PRAGMA award (NSF OCI-1234983) by
+  Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
+  For more information, please visit graple.org")
 }
 
 validate_url <- function(url){
@@ -86,6 +86,21 @@ filePresent <- function(dirPath, fileName){
     return(TRUE)
   else
     return(FALSE)
+}
+
+validate_json <- function(jsonFilePath)
+{
+  jsonFile <- fromJSON(jsonFilePath, simplifyVector = FALSE)
+  steps = 1
+  for (expFile in 1:length(jsonFile$ExpFiles)) {
+    for (vb in 1:length(jsonFile$ExpFiles[[expFile]]$variables[[1]])) {
+      steps = steps * (jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$steps + 1)
+    }
+  }
+  if(steps >= 100000)
+    return(FALSE)
+  else
+    return(TRUE)
 }
 
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
@@ -476,7 +491,7 @@ setMethod(f="GrapleRunSweepExperiment",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory should contain only files and FilterParams Directory"
             }
-            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && dirsPresent != "FilterParams"){
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE) != "FilterParams"){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory should contain directory with name FilterParams"
             }
@@ -523,15 +538,23 @@ setMethod(f="GrapleRunLinearSweepExperiment",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "A job description file should be present with name job_desc.json in the ExpRootDir"
             }
+            else if(!validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "The product of the steps of all the variables should be less than 100000"
+            }
             else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 0 && missing(filterName)){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory should contain any directories for this experiment"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 0 && !missing(filterName)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory does not have Filter Params, please place a Filterparams.json file in FilterParams directory"
             }
             else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 1 && !missing(filterName)){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory should contain only files and FilterParams Directory"
             }
-            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && dirsPresent != "FilterParams"){
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE) != "FilterParams"){
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "Experiment root directory should contain directory with name FilterParams"
             }
