@@ -90,17 +90,61 @@ filePresent <- function(dirPath, fileName){
 
 validate_json <- function(jsonFilePath)
 {
+  valid_JSON <- TRUE
+  distribution_type <- ''
+  distribution_types <- list('uniform', 'binomial', 'normal', 'poisson', 'linear')
+
   jsonFile <- fromJSON(jsonFilePath, simplifyVector = FALSE)
-  steps = 1
-  for (expFile in 1:length(jsonFile$ExpFiles)) {
-    for (vb in 1:length(jsonFile$ExpFiles[[expFile]]$variables[[1]])) {
-      steps = steps * (jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$steps + 1)
+
+  num_iterations <- jsonFile$num_iterations
+
+  if(is.null(num_iterations))
+    distribution_type <- 'linear'
+  else
+    distribution_type <- 'non-linear'
+
+  if(distribution_type == 'linear')  {
+    steps = 1
+    for (expFile in 1:length(jsonFile$ExpFiles)) {
+      for (vb in 1:length(jsonFile$ExpFiles[[expFile]]$variables[[1]])) {
+        distribution = jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$distribution
+        if(is.null(distribution) || distribution != 'linear'){
+          valid_JSON <- FALSE
+          break
+        }
+        else if (distribution == 'linear'){
+          var_steps = jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$steps
+          if(is.null(steps)){
+            valid_JSON <- FALSE
+            break
+          }
+          else{
+            steps = steps * (var_steps + 1)
+          }
+        }
+      }
+    }
+    if(steps < 100000)
+      valid_JSON <- TRUE
+    else
+      valid_JSON <- FALSE
+  }
+  else if(distribution_type == 'non-linear'){
+    for (expFile in 1:length(jsonFile$ExpFiles)) {
+      for (vb in 1:length(jsonFile$ExpFiles[[expFile]]$variables[[1]])) {
+        distribution = jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$distribution
+        if(is.null(distribution) || !(distribution %in% distribution_types)){
+          valid_JSON <- FALSE
+          break
+        }
+      }
     }
   }
-  if(steps >= 100000)
-    return(FALSE)
   else
-    return(TRUE)
+  {
+    valid_JSON <- FALSE
+  }
+  return(list(valid_JSON, distribution_type))
 }
 
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
@@ -182,13 +226,6 @@ setGeneric(name="GrapleRunSweepExperiment",
            def=function(grapleObject, filterName)
            {
              standardGeneric("GrapleRunSweepExperiment")
-           }
-)
-
-setGeneric(name="GrapleRunLinearSweepExperiment",
-           def=function(grapleObject, filterName)
-           {
-             standardGeneric("GrapleRunLinearSweepExperiment")
            }
 )
 
@@ -393,6 +430,7 @@ setMethod(f="GrapleRunExperiment",
                 qurl <- paste(grapleObject@GWSURL, "GrapleRun", sep="/")
               }
               else{
+                filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
                 qurl <- paste(grapleObject@GWSURL, "GrapleRun", filterName, sep="/")
               }
               expid = postForm(qurl, files=fileUpload(tarfile))
@@ -483,9 +521,13 @@ setMethod(f="GrapleRunSweepExperiment",
               grapleObject@StatusCode <- -1
               grapleObject@StatusMsg <- "A job description file should be present with name job_desc.json in the ExpRootDir"
             }
+            else if(!(validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))[1])){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Invalid job_desc file"
+            }
             else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 0 && missing(filterName)){
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory should contain any directories for this experiment"
+              grapleObject@StatusMsg <- "Experiment root directory should not contain any directories for this experiment"
             }
             else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 1 && !missing(filterName)){
               grapleObject@StatusCode <- -1
@@ -505,74 +547,19 @@ setMethod(f="GrapleRunSweepExperiment",
               tarfile = file.path(getwd(), "sweepexp.tar.gz")
               setwd(grapleObject@ExpRootDir)
               tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
+              distribution_type <- validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))[2]
               if(missing(filterName)){
-                qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", sep="/")
+                if(distribution_type <- 'non-linear')
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", sep="/")
+                else
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", sep="/")
               }
               else{
-                qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
-              }
-
-              status <- postForm(qurl, files=fileUpload(tarfile))
-              grapleObject@JobID <- toString(fromJSON(status)[2])
-              if(nchar(grapleObject@JobID) == 40){
-                grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
-              }
-
-              if (file.exists(tarfile)) file.remove(tarfile)
-              setwd(td)
-            }
-            return (grapleObject)
-          }
-)
-
-setMethod(f="GrapleRunLinearSweepExperiment",
-          signature="Graple",
-          definition=function(grapleObject, filterName)
-          {
-            if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
-            }
-            else if(!filePresent(grapleObject@ExpRootDir, "job_desc.json")){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "A job description file should be present with name job_desc.json in the ExpRootDir"
-            }
-            else if(!validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "The product of the steps of all the variables should be less than 100000"
-            }
-            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 0 && missing(filterName)){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory should contain any directories for this experiment"
-            }
-            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 0 && !missing(filterName)){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory does not have Filter Params, please place a Filterparams.json file in FilterParams directory"
-            }
-            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 1 && !missing(filterName)){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory should contain only files and FilterParams Directory"
-            }
-            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE) != "FilterParams"){
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory should contain directory with name FilterParams"
-            }
-            else{
-              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
-                grapleObject@TempDir <- tempdir()
-              }
-              td<-getwd()
-              setwd(grapleObject@TempDir)
-              if(file.exists("sim.tar.gz")) file.remove("sweepexp.tar.gz")
-              tarfile = file.path(getwd(), "sweepexp.tar.gz")
-              setwd(grapleObject@ExpRootDir)
-              tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
-              if(missing(filterName)){
-                qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", sep="/")
-              }
-              else{
-                qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, sep="/")
+                filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
+                if(distribution_type <- 'non-linear')
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
+                else
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, sep="/")
               }
 
               status <- postForm(qurl, files=fileUpload(tarfile))
