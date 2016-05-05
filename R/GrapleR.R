@@ -102,7 +102,10 @@ validate_json <- function(jsonFilePath)
     distribution_type <- 'linear'
   else
     distribution_type <- 'non-linear'
-
+  
+  if(is.null(jsonFile$ExpFiles))
+    return(list(valid_JSON, distribution_type))
+  
   if(distribution_type == 'linear')  {
     steps = 1
     for (expFile in 1:length(jsonFile$ExpFiles)) {
