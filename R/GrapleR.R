@@ -224,7 +224,7 @@ setGeneric(name="GrapleGetExperimentResults",
 )
 
 setGeneric(name="GrapleRunSweepExperiment",
-           def=function(grapleObject, filterName)
+           def=function(grapleObject, filterName, simsPerJob)
            {
              standardGeneric("GrapleRunSweepExperiment")
            }
@@ -512,7 +512,7 @@ setMethod(f="GrapleGetExperimentResults",
 
 setMethod(f="GrapleRunSweepExperiment",
           signature="Graple",
-          definition=function(grapleObject, filterName)
+          definition=function(grapleObject, filterName, simsPerJob)
           {
             if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
               grapleObject@StatusCode <- -1
@@ -557,10 +557,17 @@ setMethod(f="GrapleRunSweepExperiment",
               }
               else{
                 filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
-                if(distribution_type == 'non-linear')
-                  qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
-                else
-                  qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, sep="/")
+                if(missing(simsPerJob)) {
+                  if(distribution_type == 'non-linear')
+                    qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
+                  else
+                    qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, sep="/")
+                } else {
+                  if(distribution_type == 'non-linear')
+                    qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, simsPerJob, sep="/")
+                  else
+                    qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, simsPerJob, sep="/")
+                }
               }
 
               status <- postForm(qurl, files=fileUpload(tarfile))
