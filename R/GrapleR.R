@@ -1,359 +1,672 @@
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("GRAPLEr has been developed with support from a supplement the the PRAGMA award (NSF OCI-1234983). For more information, please visit graple.org")
+  packageStartupMessage("GRAPLEr has been developed with support from a supplement the PRAGMA award (NSF OCI-1234983) by
+  Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
+  For more information, please visit graple.org")
 }
 
-#' @title Get the GRAPLEr Service Status
-#' @description
-#' This function allows you to check the staus of the GRAPLEr web service.
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @return a string describing service status
-#' @keywords Graple ServiceStatus
-#' @export
-#' @examples
-#' \dontrun{
-#' GrapleCheckService()
-#' }
-GrapleCheckService<-function(submissionURL)
-{
-  qurl<-paste(submissionURL, "service_status", sep="/")
-  status<- getURL(qurl)
-  return(fromJSON(status))
+validate_url <- function(url){
+  valid_url <- FALSE
+
+  valid_url = tryCatch({
+    http_error(url)
+  }, error = function(e) {
+    valid_url <- FALSE
+  })
+  return(valid_url)
 }
 
-#' @title Sends the experiment (multiple simulations) to be run on GWS
-#' This function allows you to run graple with an optional post-process filtering of results
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @param ExperimentDir the experiment root folder
-#' @param FilterName the name of the post-processing filter script
-#' @keywords Graple RunExperiment
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://graple-service.cloudapp.net"
-#' expRootDir<-"./Workspace/ExpRoot"
-#' filterName<-"Filter1.R"
-#' GrapleRunExperiment(graplerURL, expRootDir, filterName)
-#' }
-GrapleRunExperiment<-function(submissionURL, ExperimentDir, FilterName)
-{
-  td<-getwd()
-  setwd(ExperimentDir)
-  simdirs <- dir(".")
-  if("Results" %in% simdirs) {
-      print("Results found in experiment directory!")
-      print("Please delete and run the experiment")
-      return()
-  }
-  tarfile = file.path(ExperimentDir, "sim.tar.gz")
-  tar(tarfile, simdirs, compression="gz", compression_level = 6, tar="internal")
+check_graple <- function(object) {
+  errors <- character()
+  if(length(object@GWSURL) > 0)
+  {
+    valid_url <- validate_url(object@GWSURL)
 
-  if(missing(FilterName)){
-    qurl <- paste(submissionURL, "GrapleRun", sep="/")
-  }
-  else{
-    qurl <- paste(submissionURL, "GrapleRun", FilterName, sep="/")
+    if (!valid_url) {
+      msg <- paste("Invalid url")
+      errors <- c(errors, msg)
+    }
   }
 
-  expid = postForm(qurl, files=fileUpload(tarfile))
+  if(length(object@ExpRootDir) > 0)
+  {
+    if(!dir.exists(object@ExpRootDir))
+    {
+      msg <- paste("Experiment root directory does not exist")
+      errors <- c(errors, msg)
+    }
+  }
 
-  if (file.exists(tarfile)) file.remove(tarfile)
-  setwd(td)
-  return (substr(expid[1], start=13, stop=52))
+  if(length(object@ResultsDir) > 0)
+  {
+    if(!dir.exists(object@ResultsDir))
+    {
+      msg <- paste("Results directory does not exist")
+      errors <- c(errors, msg)
+    }
+  }
+
+  if(!check_subdirectory(object))
+  {
+    msg <- paste("Exp Root Dir/Result directory is a sub-directory of Result/Input")
+    errors <- c(errors, msg)
+  }
+
+  if (length(errors) == 0) TRUE else errors
 }
 
-#' @title Check the GRAPLEr Experiment Status
-#' @description
-#' This function allows you to check the staus of the GRAPLEr web service.
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @param experimentId Experiment ID returned from GrapleRunExperiment
-#' or GrapleRunExperimentSweep
-#' @return a string describing experiment status
-#' @keywords Graple CheckExperimentCompletion
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://graple-service.cloudapp.net"
-#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
-#' GrapleCheckExperimentCompletion(graplerURL, expId)
-#' }
-GrapleCheckExperimentCompletion <- function(submissionURL, experimentId)
-{
-  qurl <- paste(submissionURL, "GrapleRunStatus", experimentId, sep="/")
-  status<- getURL(qurl)
-  return (fromJSON(status))
+check_subdirectory <- function(object){
+  input_dir <- object@ExpRootDir
+  results_dir <- object@ResultsDir
+  valid_directories <- FALSE
+  if(((length(input_dir) > 0 && length(results_dir) > 0) && (length(grep(input_dir,results_dir)) || length(grep(results_dir, input_dir)))>0))
+    valid_directories <- FALSE
+  else
+    valid_directories <- TRUE
+  return(valid_directories)
 }
 
-#' @title Gets the GRAPLEr Experiment Results
-#' @description
-#' This function allows you to retrieve the complete results
-#' of an experiment.
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @param experimentId Experiment ID returned from GrapleRunExperiment
-#' or GrapleRunExperimentSweep
-#' @return a string describing the fully qualified result file name
-#' @keywords Graple GetExperimentResults
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://graple-service.cloudapp.net"
-#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
-#' GrapleGetExperimentResults(graplerURL, expId)
-#' }
-GrapleGetExperimentResults <- function(submissionURL, experimentId)
-{
-  td<-getwd()
-  if("Results" %in% dir()) {
-      print("Results found in experiment directory!")
-      print("Please delete and get the results")
-      return()
-  }
-  qurl <- paste(submissionURL, "GrapleRunResults", experimentId, sep="/")
-  status<- getURL(qurl)
-
-  qurl <- paste(submissionURL, experimentId, "Results", "output.tar.gz", sep="/")
-  resultfile <- file.path(getwd(),  "results.tar.gz")
-  download.file(qurl, resultfile)
-  dir.create("Results")
-  file.copy("results.tar.gz", "Results/")
-  file.remove("results.tar.gz")
-  setwd("Results")
-  untar("results.tar.gz")
-  file.remove("results.tar.gz")
-  files <- list.files(".")
-  lapply(files, function(x){untar(x); file.remove(x)})
-  setwd(td)
-  return(resultfile)
+getResultsDirName <- function(object){
+  if(length(object@ExpName) > 0)
+    return(object@ExpName)
+  else
+    return(object@JobID)
 }
 
-#' @title Creates an experiment based on sweep parameters
-#' @description
-#' This function allows you to run an experiment using a single simulation.
-#' The sweep parameters are used to generate the other sims.
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @param simDir the simulation folder containing the driver file
-#' @param driverFileName the driver file name
-#' @param parameterName the column name from the driver file to be swept
-#' @param startValue numeric start offset
-#' @param endValue numeric end offset
-#' @param numberOfIncrements number of increments between start and end
-#' @param filterName the name of the post-process filter (optional parameter)
-#' @return the experiment ID
-#' @keywords Graple RunExperimentSweep
-#' @export
-#' @examples
-#' \dontrun{
-#' simDir="./Workspace/ExpRoot/Exp0"
-#' driverFileName="met_hourly.csv"
-#' parameterName="AirTemp"
-#' startValue=-2
-#' endValue=2
-#' numberOfIncrements=10
-#' filterName="Filter1.R" (optional parameter)
-#' expId<-GrapleRunExperimentSweep(graplerURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements)
-#' }
-GrapleRunExperimentSweep <- function(submissionURL, simDir, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName)
-{
-  td<-getwd()
-  unlink("../tempGRAPLE", recursive = TRUE)
-  dir.create("../tempGRAPLE")
-  setwd("../tempGRAPLE")
-  tarfile = file.path(simDir, "sim.tar.gz")
-  setwd(simDir)
-  if("Results" %in% dir()) {
-	  print("Results found in experiment directory!")
-	  print("Please delete and run the experiment")
-	  unlink("../tempGRAPLE", recursive = TRUE)
-	  return()
-  }
-  tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
-
-  qurl <- paste(submissionURL, "GrapleRunMetOffset", sep="/")
-
-  status <- postForm(qurl, files=fileUpload(tarfile))
-  print(fromJSON(status))
-  expid <- substr(status[1], start=13, stop=52)
-
-  if (file.exists(tarfile)) file.remove(tarfile)
-  unlink("../tempGRAPLE", recursive = TRUE)
-  if(missing(filterName)){
-    params <- paste(expid, driverFileName, parameterName, startValue, endValue, numberOfIncrements, sep="*")
-  }else{
-    params <- paste(expid, driverFileName, parameterName, startValue, endValue, numberOfIncrements, filterName, sep="*")
-  }
-  qurl <- paste(submissionURL, "TriggerSimulation", params, sep="/")
-  print(qurl)
-  status = postForm(qurl, t="none")
-  print(paste0("Status:", fromJSON(status)))
-  #if(status <> "Success") print("Failed to start experiment")
-  setwd(td)
-  return (expid)
-}
-
-#' @title Creates an experiment based on a configuration file
-#' @description
-#' This function allows you to run an experiment using a single simulation.
-#' Create an archive that contains:
-#' 1. Met (csv) file.
-#' 2. Driver (nml) file
-#' 3. job_desc.csv file (the name has to be job_desc.csv)
-#' 4. (optional) A FilterParams Directory, which consists of a "FilterParams.txt" file
-#'
-#' The sweep parameters in the job description file are used to generate the other sims.
-#' job_desc.csv is a comma separated value file in the following format:
-#' base_file, driver_filename.csv
-#' iterations, number_of_iterations
-#' Parametername1, add, uniform, -1, 1
-#' Paramtername2, sub, binomial, 10, 0.5
-
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @param simDir the simulation folder containing the driver file
-#' @param FilterName the name of post-process filter
-#' @return the experiment ID
-#' @keywords Graple RunExperimentJob
-#' @export
-#' @examples
-#' \dontrun{
-#' simDir="./Workspace/ExpRoot/Exp0"
-#' FilterName="Filter1.R"
-#' expId<-GrapleRunExperimentJob(graplerURL, simDir, FilterName)
-#' }
-GrapleRunExperimentJob <- function(submissionURL, simDir, FilterName)
-{
-  td<-getwd()
-  unlink("../tempGRAPLE", recursive = TRUE)
-  dir.create("../tempGRAPLE")
-  setwd("../tempGRAPLE")
-  tarfile = file.path(getwd(), "sweepexp.tar.gz")
-  setwd(simDir)
-  if("Results" %in% dir()) {
-      print("Results found in experiment directory!")
-      print("Please delete and run the experiment")
-      unlink("../tempGRAPLE", recursive = TRUE)
-      return()
-  }
-  tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
-  if(missing(FilterName)){
-    qurl <- paste(submissionURL, "GrapleRunMetSample", sep="/")
-  }
-  else{
-    qurl <- paste(submissionURL, "GrapleRunMetSample", FilterName, sep="/")
-  }
-
-  status <- postForm(qurl, files=fileUpload(tarfile))
-  if (file.exists(tarfile)) file.remove(tarfile)
-  unlink("../tempGRAPLE", recursive = TRUE)
-  expid <- substr(status[1], start=57, stop=96)
-  setwd(td)
-  return (expid)
-}
-
-#' @title Gets the GRAPLEr Experiment Job Results
-#' @description
-#' This function allows you to retrieve the complete results
-#' of an sweep job style experiment.
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @param experimentId Experiment ID returned from GrapleRunExperiment
-#' or GrapleRunExperimentSweep
-#' @return a string describing the fully qualified result file name
-#' @keywords Graple GetExperimentJobResults
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://graple-service.cloudapp.net"
-#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
-#' GrapleGetExperimentJobResults(graplerURL, expId)
-#' }
-GrapleGetExperimentJobResults <- function(submissionURL, experimentId)
-{
-  td<-getwd()
-  if("Results" %in% dir()) {
-    print("Results found in experiment directory!")
-    print("Please delete and run the experiment")
-    return()
-  }
-  qurl <- paste(submissionURL, "GrapleRunResultsMetSample", experimentId, sep="/")
-  status<- getURL(qurl)
-
-  qurl <- paste(submissionURL, experimentId, "Results", "output.tar.gz", sep="/")
-  resultfile <- file.path(getwd(),  "results.tar.gz")
-  download.file(qurl, resultfile)
-  dir.create("Results")
-  file.copy("results.tar.gz", "Results/")
-  file.remove("results.tar.gz")
-  setwd("Results")
-  untar("results.tar.gz")
-  file.remove("results.tar.gz")
-  files <- list.files(".", pattern = "\\.bz2\\.tar$")
-  lapply(files, function(x){untar(x); file.remove(x)})
-  setwd(td)
-  return(resultfile)
-}
-
-#' @title Aborts an existing GRAPLE experiment
-#' @description
-#' This function allows you to terminate a previously submitted experiment using
-#' its experiment identifier. This is useful for aborting stalled or failed experiments.
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @param experimentId Experiment ID returned from GrapleRunExperiment
-#' or GrapleRunExperimentSweep
-#' @return a status string
-#' @keywords Graple AbortExperiment
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://graple-service.cloudapp.net"
-#' expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
-#' GrapleAbortExperiment(graplerURL, expId)
-#' }
-GrapleAbortExperiment <- function(submissionURL, experimentId)
-{
-  qurl <- paste(submissionURL, "GrapleAbort", experimentId, sep="/")
-  status<- getURL(qurl)
-  return (fromJSON(status))
-}
-
-#' @title Retrieves the list of post process operation scripts
-#' @description
-#' This function allows you to retrieve list of all the post-process operation scripts
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @return a comma seperated string of file names
-#' @keywords Graple ListFilters
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://graple-service.cloudapp.net"
-#' GrapleListFilters(graplerURL)
-#' }
-GrapleListFilters <- function(submissionURL)
-{
-  qurl <- paste(submissionURL, "GrapleListFilters", sep="/")
-  status <- getURL(qurl)
-  return (toString(fromJSON(status)))
-}
-
-#' @title Checks version compatibility between R package and Graple web service
-#' @description
-#' This function allows you to check version compatibility between R package and
-#' Graple Web Service
-#' @param submissionURL URL:Port of the GRAPLEr web service
-#' @return true if versions are compatible else false
-#' @keywords Graple CheckVersionCompatibility
-#' @export
-#' @examples
-#' \dontrun{
-#' graplerURL<-"http://graple-service.cloudapp.net"
-#' GrapleCheckVersionCompatibility(graplerURL)
-#' }
-GrapleCheckVersionCompatibility <- function(submissionURL)
-{
-  compatibleVersions <- c(packageVersion("GRAPLEr"), "1.0.2")
-  qurl <- paste(submissionURL, "GrapleGetVersion", sep="/")
-  status <- getURL(qurl)
-  serviceVersion <- fromJSON(status)
-  if(serviceVersion %in% compatibleVersions)
+filesPresent <- function(object){
+  if(length(list.files(path = object@ExpRootDir, recursive = FALSE)) != length(list.dirs(path = object@ExpRootDir, recursive = FALSE)))
     return(TRUE)
   else
-    return(TRUE)
+    return(FALSE)
 }
 
+filePresent <- function(dirPath, fileName){
+  filesList <- list.files(path = dirPath, recursive = FALSE)
+  if(fileName %in% filesList)
+    return(TRUE)
+  else
+    return(FALSE)
+}
+
+validate_json <- function(jsonFilePath)
+{
+  valid_JSON <- TRUE
+  distribution_type <- ''
+  distribution_types <- list('uniform', 'binomial', 'normal', 'poisson')
+
+  jsonFile <- fromJSON(jsonFilePath, simplifyVector = FALSE)
+
+  num_iterations <- jsonFile$num_iterations
+
+  if(is.null(num_iterations))
+    distribution_type <- 'linear'
+  else
+    distribution_type <- 'non-linear'
+  
+  if(is.null(jsonFile$ExpFiles))
+    return(list(valid_JSON, distribution_type))
+  
+  if(distribution_type == 'linear')  {
+    steps = 1
+    for (expFile in 1:length(jsonFile$ExpFiles)) {
+      for (vb in 1:length(jsonFile$ExpFiles[[expFile]]$variables[[1]])) {
+        distribution = jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$distribution
+        if(is.null(distribution) || distribution != 'linear'){
+          valid_JSON <- FALSE
+          break
+        }
+        else if (distribution == 'linear'){
+          var_steps = jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$steps
+          if(is.null(steps)){
+            valid_JSON <- FALSE
+            break
+          }
+          else{
+            steps = steps * (var_steps + 1)
+          }
+        }
+      }
+    }
+    if(steps >= 100000)
+      valid_JSON <- FALSE
+  }
+  else if(distribution_type == 'non-linear'){
+    for (expFile in 1:length(jsonFile$ExpFiles)) {
+      for (vb in 1:length(jsonFile$ExpFiles[[expFile]]$variables[[1]])) {
+        distribution = jsonFile$ExpFiles[[expFile]]$variables[[1]][[vb]]$distribution
+        if(is.null(distribution) || !(distribution %in% distribution_types)){
+          valid_JSON <- FALSE
+          break
+        }
+      }
+    }
+  }
+  else
+  {
+    valid_JSON <- FALSE
+  }
+  return(list(valid_JSON, distribution_type))
+}
+
+Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
+                                       StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", SecurityKey="character",
+                                       Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu",
+                                       TempDir=tempdir(), Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
+
+setGeneric(name="setTempDir",
+           def=function(grapleObject,path)
+           {
+             standardGeneric("setTempDir")
+           }
+)
+
+setGeneric(name="setSubmissionURL",
+           def=function(grapleObject,url)
+           {
+             standardGeneric("setSubmissionURL")
+           }
+)
+
+setGeneric(name="setExpName",
+           def=function(grapleObject,expName)
+           {
+             standardGeneric("setExpName")
+           }
+)
+
+setGeneric(name="setExperimentDir",
+           def=function(grapleObject,path)
+           {
+             standardGeneric("setExperimentDir")
+           }
+)
+
+setGeneric(name="setResultsDir",
+           def=function(grapleObject,path)
+           {
+             standardGeneric("setResultsDir")
+           }
+)
+
+setGeneric(name="setSecurityKey",
+           def=function(grapleObject,path)
+           {
+             standardGeneric("setSecurityKey")
+           }
+)
+
+setGeneric(name="GrapleCheckService",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleCheckService")
+           }
+)
+
+setGeneric(name="GrapleRunExperiment",
+           def=function(grapleObject, filterName)
+           {
+             standardGeneric("GrapleRunExperiment")
+           }
+)
+
+setGeneric(name="GrapleCheckExperimentCompletion",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleCheckExperimentCompletion")
+           }
+)
+
+setGeneric(name="GrapleGetExperimentResults",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleGetExperimentResults")
+           }
+)
+
+setGeneric(name="GrapleRunSweepExperiment",
+           def=function(grapleObject, filterName)
+           {
+             standardGeneric("GrapleRunSweepExperiment")
+           }
+)
+
+setGeneric(name="GrapleGetExperimentJobResults",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleGetExperimentJobResults")
+           }
+)
+
+setGeneric(name="GrapleEndExperiment",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleEndExperiment")
+           }
+)
+
+setGeneric(name="GrapleChkVersionCompatibility",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleChkVersionCompatibility")
+           }
+)
+
+setGeneric(name="GrapleListPostProcessFilters",
+           def=function(grapleObject)
+           {
+             standardGeneric("GrapleListPostProcessFilters")
+           }
+)
+
+setMethod(f="setTempDir",
+          signature="Graple",
+          definition=function(grapleObject,path)
+          {
+            if(dir.exists(path)){
+              grapleObject@TempDir <- path
+              grapleObject@StatusCode <- 1
+              grapleObject@StatusMsg <- "Temporary directory set to directory provided"
+            }
+            else{
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Temporary directory provided does not exist"
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="setSubmissionURL",
+          signature="Graple",
+          definition=function(grapleObject,url)
+          {
+            grapleObject@GWSURL <- url
+            return(grapleObject)
+          }
+)
+
+setMethod(f="setExpName",
+          signature="Graple",
+          definition=function(grapleObject,expName)
+          {
+            if(length(expName) > 0)
+            {
+              grapleObject@ExpName <- expName
+              grapleObject@StatusCode <- 1
+              grapleObject@StatusMsg <- "Experiment name set to the name provided"
+            }
+            else
+            {
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Invalid Experiment Name"
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="setExperimentDir",
+          signature="Graple",
+          definition=function(grapleObject,path)
+          {
+            if(length(path) > 0)
+            {
+              grapleObject@ExpRootDir <- path
+              if(!dir.exists(grapleObject@ExpRootDir))
+              {
+                grapleObject@ExpRootDir <- character(0)
+                grapleObject@StatusCode <- -1
+                grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
+              }
+              else if(length(grapleObject@ResultsDir) > 0 && !check_subdirectory(grapleObject))
+              {
+                grapleObject@ExpRootDir <- character(0)
+                grapleObject@StatusCode <- -1
+                grapleObject@StatusMsg <- "Exp Root Dir/Result directory is a sub-directory of Result/Input"
+              }
+              else
+              {
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- "Experiment root directory has been set to directory provided"
+              }
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="setResultsDir",
+          signature="Graple",
+          definition=function(grapleObject,path)
+          {
+            if(length(path) > 0)
+            {
+              grapleObject@ResultsDir <- path
+              if(!dir.exists(grapleObject@ResultsDir))
+              {
+                grapleObject@StatusCode <- -1
+                grapleObject@StatusMsg <- "Results directory provided does not exist"
+              }
+              else if(length(grapleObject@ExpRootDir) > 0 && !check_subdirectory(grapleObject))
+              {
+                grapleObject@StatusCode <- -1
+                grapleObject@StatusMsg <- "Exp Root Dir/Result directory is a sub-directory of Result/Input"
+              }
+              else
+              {
+                grapleObject@ResultsDir <- path
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- "Experiment root directory has been set to directory provided"
+              }
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="setSecurityKey",
+          signature="Graple",
+          definition=function(grapleObject,path)
+          {
+            if(length(path) > 0)
+            {
+              if(!file.exists(path))
+              {
+                grapleObject@StatusCode <- -1
+                grapleObject@StatusMsg <- "File provided does not exist"
+              }
+              else
+              {
+                ##write the logic for reading file content and set the security key
+                grapleObject@SecurityKey <- ''
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- "Security Key has been successfully set"
+              }
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="GrapleCheckService",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            qurl<-paste(grapleObject@GWSURL, "service_status", sep="/")
+            status<- getURL(qurl)
+            grapleObject@StatusCode <- 1
+            grapleObject@StatusMsg <- paste(toString(fromJSON(status)[1]),toString(fromJSON(status)[2]))
+            return(grapleObject)
+          }
+)
+
+setMethod(f="GrapleRunExperiment",
+          signature="Graple",
+          definition=function(grapleObject, filterName)
+          {
+            if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
+            }
+            else if(filesPresent(grapleObject)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain only directories(no files) for this experiment"
+            }
+            else if(!missing(filterName) && !dir.exists(paste(grapleObject@ExpRootDir, "FilterParams", sep="/"))){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment Root Directory should consist of FilterParams Directory"
+            }
+            else if(!missing(filterName) && dir.exists(paste(grapleObject@ExpRootDir, "FilterParams", sep="/")) && !filePresent(paste(grapleObject@ExpRootDir, "FilterParams", sep = "/"), "FilterParams.json")){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "The Filter Params directory does not contain FilterParams.json"
+            }
+            else
+            {
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
+              td<-getwd()
+              setwd(grapleObject@TempDir)
+              if(file.exists("sim.tar.gz")) file.remove("sim.tar.gz")
+              tarfile = file.path(getwd(), "sim.tar.gz")
+              setwd(grapleObject@ExpRootDir)
+              tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
+
+              if(missing(filterName)){
+                qurl <- paste(grapleObject@GWSURL, "GrapleRun", sep="/")
+              }
+              else{
+                filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
+                qurl <- paste(grapleObject@GWSURL, "GrapleRun", filterName, sep="/")
+              }
+              expid = postForm(qurl, files=fileUpload(tarfile))
+              grapleObject@JobID <- toString(fromJSON(expid)[1])
+              if(nchar(grapleObject@JobID) == 40){
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
+              }
+
+              if (file.exists(tarfile)) file.remove(tarfile)
+              setwd(td)
+
+            }
+            return (grapleObject)
+          }
+)
+
+setMethod(f="GrapleCheckExperimentCompletion",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            qurl <- paste(grapleObject@GWSURL, "GrapleRunStatus", grapleObject@JobID, sep="/")
+            status <- getURL(qurl)
+            grapleObject@StatusCode <- 1
+            grapleObject@StatusMsg <- toString(fromJSON(status)[1])
+            return (grapleObject)
+          }
+)
+
+setMethod(f="GrapleGetExperimentResults",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            if(length(grapleObject@ResultsDir)<=0 || !dir.exists(grapleObject@ResultsDir))
+            {
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Results directory provided does not exist"
+            }
+            else if(length(grapleObject@JobID) <= 0)
+            {
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "No JobID, Experiment Job ID not provided"
+            }
+            else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
+            {
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
+            }
+            else{
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
+              td<-setwd(grapleObject@ResultsDir)
+              qurl<-paste(grapleObject@GWSURL, "GrapleRunResults", grapleObject@JobID, sep="/")
+              status<- getURL(qurl)
+              if(toString(fromJSON(status)[2]) == "success"){
+                qurl <- paste(grapleObject@GWSURL, grapleObject@JobID, "Results", "output.tar.gz", sep="/")
+                resultfile <- file.path(grapleObject@TempDir,  "results.tar.gz")
+                download.file(qurl, resultfile)
+                setwd(grapleObject@TempDir)
+                resultPath <- paste(grapleObject@ResultsDir, getResultsDirName(grapleObject), sep="/")
+                dir.create(resultPath)
+                file.copy("results.tar.gz", resultPath)
+                file.remove("results.tar.gz")
+                setwd(resultPath)
+                untar("results.tar.gz")
+                file.remove("results.tar.gz")
+                files <- list.files(".", pattern = "\\.bz2\\.tar$")
+                lapply(files, function(x){untar(x); file.remove(x)})
+                setwd(td)
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- paste('The results have been downloaded to ', resultPath, sep ="")
+              }
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="GrapleRunSweepExperiment",
+          signature="Graple",
+          definition=function(grapleObject, filterName)
+          {
+            if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory provided does not exist"
+            }
+            else if(!filePresent(grapleObject@ExpRootDir, "job_desc.json")){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "A job description file should be present with name job_desc.json in the ExpRootDir"
+            }
+            else if(!as.logical(validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))[1])){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Invalid job_desc file"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 0 && missing(filterName)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should not contain any directories for this experiment"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) > 1 && !missing(filterName)){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain only files and FilterParams Directory"
+            }
+            else if(length(list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE)) == 1 && !missing(filterName) && list.dirs(path = grapleObject@ExpRootDir, recursive = FALSE, full.names = FALSE)[1] != "FilterParams"){
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Experiment root directory should contain directory with name FilterParams"
+            }
+            else{
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
+              td<-getwd()
+              setwd(grapleObject@TempDir)
+              if(file.exists("sim.tar.gz")) file.remove("sweepexp.tar.gz")
+              tarfile = file.path(getwd(), "sweepexp.tar.gz")
+              setwd(grapleObject@ExpRootDir)
+              tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
+              distribution_type <- validate_json(paste(grapleObject@ExpRootDir, "job_desc.json", sep="/"))[2]
+              if(missing(filterName)){
+                if(distribution_type == 'non-linear')
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", sep="/")
+                else
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", sep="/")
+              }
+              else{
+                filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
+                if(distribution_type == 'non-linear')
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
+                else
+                  qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", filterName, sep="/")
+              }
+
+              status <- postForm(qurl, files=fileUpload(tarfile))
+              grapleObject@JobID <- toString(fromJSON(status)[2])
+              if(nchar(grapleObject@JobID) == 40){
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
+              }
+
+              if (file.exists(tarfile)) file.remove(tarfile)
+              setwd(td)
+            }
+            return (grapleObject)
+          }
+)
+
+setMethod(f="GrapleGetExperimentJobResults",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            if(length(grapleObject@ResultsDir)<=0 || !dir.exists(grapleObject@ResultsDir))
+            {
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "Results directory provided does not exist"
+            }
+            else if(length(grapleObject@JobID) <= 0)
+            {
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- "No JobID, Experiment Job ID not provided"
+            }
+            else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
+            {
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
+            }
+            else{
+              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
+                grapleObject@TempDir <- tempdir()
+              }
+              td<-getwd()
+              qurl <- paste(grapleObject@GWSURL, "GrapleRunResultsMetSample", grapleObject@JobID, sep="/")
+              status<- getURL(qurl)
+
+              if(toString(fromJSON(status)[2]) == "success"){
+                qurl <- paste(grapleObject@GWSURL, grapleObject@JobID, "Results", "output.tar.gz", sep="/")
+                resultfile <- file.path(grapleObject@TempDir,  "results.tar.gz")
+                download.file(qurl, resultfile)
+                setwd(grapleObject@TempDir)
+                resultPath <- paste(grapleObject@ResultsDir, getResultsDirName(grapleObject), sep="/")
+                dir.create(resultPath)
+                file.copy("results.tar.gz", resultPath)
+                file.remove("results.tar.gz")
+                setwd(resultPath)
+                untar("results.tar.gz")
+                file.remove("results.tar.gz")
+                files <- list.files(".", pattern = "\\.bz2\\.tar$")
+                lapply(files, function(x){untar(x); file.remove(x)})
+                setwd(td)
+                grapleObject@StatusCode <- 1
+                grapleObject@StatusMsg <- paste('The results have been downloaded to ', resultPath, sep = "")
+              }
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="GrapleEndExperiment",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            qurl <- paste(grapleObject@GWSURL, "GrapleEnd", grapleObject@JobID, sep="/")
+            status<- getURL(qurl)
+            return (fromJSON(status))
+          }
+)
+
+setMethod(f="GrapleChkVersionCompatibility",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            if(!length(grapleObject@Client_Version_ID) > 0){
+              grapleObject@Client_Version_ID <- packageVersion("GRAPLEr")
+            }
+            qurl <- paste(grapleObject@GWSURL, "GrapleGetVersion", sep="/")
+            status <- getURL(qurl)
+            compatibleGRAPLEVersions <- fromJSON(status)
+            if(grapleObject@Client_Version_ID %in% compatibleGRAPLEVersions){
+              grapleObject@StatusCode <- 1
+              grapleObject@StatusMsg <- 'GWS and GRAPLEr versions are compatible'
+            }
+            else{
+              grapleObject@StatusCode <- -1
+              grapleObject@StatusMsg <- paste('GWS and GRAPLEr versions are not compatible, compatible versions are :', compatibleGRAPLEVersions, sep="")
+            }
+            return(grapleObject)
+          }
+)
+
+setMethod(f="GrapleListPostProcessFilters",
+          signature="Graple",
+          definition=function(grapleObject)
+          {
+            qurl <- paste(grapleObject@GWSURL, "GrapleListFilters", sep="/")
+            status<- getURL(qurl)
+            grapleObject@StatusCode <- 1
+            grapleObject@StatusMsg <- paste('The list of post process filters available are :', toString(fromJSON(status)), sep = "")
+            return(grapleObject)
+          }
+)
