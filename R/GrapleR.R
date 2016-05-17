@@ -5,6 +5,12 @@
   For more information, please visit graple.org")
 }
 
+#' Validates whether a given url exists
+#'
+#' @param url
+#' @return A boolean value indicating whether url exists
+#' @examples
+#' validate_url('http://graple.acis.ufl.edu')
 validate_url <- function(url){
   valid_url <- FALSE
 
@@ -16,6 +22,12 @@ validate_url <- function(url){
   return(valid_url)
 }
 
+#' Checks if the grapleObject is valid
+#' by checking if the directories provided exist and valid
+#' @param object A Graple Object
+#' @return errors if any of the validation fails
+#' @examples
+#' check_graple(grapleExp1)
 check_graple <- function(object) {
   errors <- character()
   if(length(object@GWSURL) > 0)
@@ -55,6 +67,13 @@ check_graple <- function(object) {
   if (length(errors) == 0) TRUE else errors
 }
 
+#' Checks if the input/results directory is a sub-directory of
+#' results/input directory
+#' @param object A Graple Object
+#' @return A boolean value indicating whether the directory
+#' structure is valid
+#' @examples
+#' check_subdirectory(grapleExp1)
 check_subdirectory <- function(object){
   input_dir <- object@ExpRootDir
   results_dir <- object@ResultsDir
@@ -66,6 +85,11 @@ check_subdirectory <- function(object){
   return(valid_directories)
 }
 
+#' Gets the name for results directory
+#' @param object A Graple Object
+#' @return ExpName if provided, else the JobID
+#' @examples
+#' getResultsDirName(grapleExp1)
 getResultsDirName <- function(object){
   if(length(object@ExpName) > 0)
     return(object@ExpName)
@@ -73,6 +97,11 @@ getResultsDirName <- function(object){
     return(object@JobID)
 }
 
+#' Checks if there are any files present in ExpRoot  Directory
+#' @param object A Graple Object
+#' @return A boolean value indicating whether files are present or not
+#' @examples
+#' filesPresent(grapleExp1)
 filesPresent <- function(object){
   if(length(list.files(path = object@ExpRootDir, recursive = FALSE)) != length(list.dirs(path = object@ExpRootDir, recursive = FALSE)))
     return(TRUE)
@@ -80,6 +109,12 @@ filesPresent <- function(object){
     return(FALSE)
 }
 
+#' checks if a given file exists in a directory
+#' @param dirPath A Directory path
+#' @param fileName File name
+#' @return A boolean value indicating whether a file is present or not
+#' @examples
+#' filePresent('C:/ExpRoot/Exp1/mySim', 'met_hourly.csv')
 filePresent <- function(dirPath, fileName){
   filesList <- list.files(path = dirPath, recursive = FALSE)
   if(fileName %in% filesList)
@@ -88,6 +123,11 @@ filePresent <- function(dirPath, fileName){
     return(FALSE)
 }
 
+#' Checks if a json file is valid according to GRAPLEr constraints
+#' @param jsonFilePath JSON File path
+#' @return A boolean value indicating whether the json file is valid
+#' @examples
+#' validate_json('C:/ExpRoot/Exp3/job_desc.json')
 validate_json <- function(jsonFilePath)
 {
   valid_JSON <- TRUE
@@ -102,10 +142,10 @@ validate_json <- function(jsonFilePath)
     distribution_type <- 'linear'
   else
     distribution_type <- 'non-linear'
-  
+
   if(is.null(jsonFile$ExpFiles))
     return(list(valid_JSON, distribution_type))
-  
+
   if(distribution_type == 'linear')  {
     steps = 1
     for (expFile in 1:length(jsonFile$ExpFiles)) {
@@ -148,6 +188,19 @@ validate_json <- function(jsonFilePath)
   return(list(valid_JSON, distribution_type))
 }
 
+#' An S4 class to represent a graple object.
+#'
+#' @slot GWSURL            A SubmissionURL for the experiment having a default value of http://graple.acis.ufl.edu
+#' @slot ExpRootDir        Experiment Root Directory path
+#' @slot ResultsDir        Directory path for storing the results
+#' @slot JobID             Unique identifier for the experiment
+#' @slot StatusCode        Integer value indicating the status of an operation
+#' @slot StatusMsg         A brief text message indicating the status of an operation
+#' @slot ExpName           A name for the experiment
+#' @slot TempDir           Temporary Directory path for temporary storage of files
+#' @slot SecurityKey       API Security Key to authenticate a user
+#' @slot Retention         A user provided request to the GRAPLEr cluster on duration for which experiment results should be retained
+#' @slot Client_Version_ID The version of GRAPLEr package being used
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
                                        StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", SecurityKey="character",
                                        Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu",
@@ -258,6 +311,12 @@ setGeneric(name="GrapleListPostProcessFilters",
            }
 )
 
+#' Set the Temporary Directory to given directory path for the Graple Object
+#' @param grapleObject A Graple Object
+#' @param path Path to a directory to be set as Temporary directory for the experiment
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' setTempDir(grapleExp1, 'C:/TempDir')
 setMethod(f="setTempDir",
           signature="Graple",
           definition=function(grapleObject,path)
@@ -275,6 +334,12 @@ setMethod(f="setTempDir",
           }
 )
 
+#' Sets the submission URL in the Graple object
+#' @param grapleObject A Graple Object
+#' @param url A Submission URL
+#' @return The Graple object with updated submissionURL
+#' @examples
+#' setSubmissionURL(grapleExp1, 'http://graple.acis.ufl.edu')
 setMethod(f="setSubmissionURL",
           signature="Graple",
           definition=function(grapleObject,url)
@@ -284,6 +349,12 @@ setMethod(f="setSubmissionURL",
           }
 )
 
+#' Sets the name of the experiment in the Graple object
+#' @param grapleObject A Graple Object
+#' @param expName A Graple Object
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' setExpName(grapleObject, 'SweepExperiment')
 setMethod(f="setExpName",
           signature="Graple",
           definition=function(grapleObject,expName)
@@ -303,6 +374,12 @@ setMethod(f="setExpName",
           }
 )
 
+#' Set the Experiment root directory in the Graple object
+#' @param grapleObject A Graple Object
+#' @param path Directory path for the experiment root directory
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' setExperimentDir(grapleObject, 'C:/ExpRoot/Exp1')
 setMethod(f="setExperimentDir",
           signature="Graple",
           definition=function(grapleObject,path)
@@ -332,6 +409,12 @@ setMethod(f="setExperimentDir",
           }
 )
 
+#' Sets the results directory for the experiment in the Graple object
+#' @param grapleObject A Graple Object
+#' @param path Directory path for the results to be downloaded
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' setResultsDir(grapleObject, 'C:/ExpRoot/Results/Exp1')
 setMethod(f="setResultsDir",
           signature="Graple",
           definition=function(grapleObject,path)
@@ -360,6 +443,12 @@ setMethod(f="setResultsDir",
           }
 )
 
+#' Sets the security key in the grapleObject
+#' @param grapleObject A Graple Object
+#' @param path Path to the a text file containing the security key
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' setSecurityKey(grapleExp1, 'C:/ExpRoot/KeyFiles/myKey.txt')
 setMethod(f="setSecurityKey",
           signature="Graple",
           definition=function(grapleObject,path)
@@ -383,6 +472,11 @@ setMethod(f="setSecurityKey",
           }
 )
 
+#' Checks if the graple service is up and running on the submission URL provided
+#' @param grapleObject A Graple Object
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' GrapleCheckService(grapleExp1)
 setMethod(f="GrapleCheckService",
           signature="Graple",
           definition=function(grapleObject)
@@ -395,6 +489,13 @@ setMethod(f="GrapleCheckService",
           }
 )
 
+#' Used to run a batch experiment with mutiple simulations in the root directory
+#' also, an optional filter can be run on the results generated
+#' @param grapleObject A Graple Object
+#' @param filterName An optional post-process filter name
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' GrapleRunExperiment(grapleExp1, 'ExtractVariables')
 setMethod(f="GrapleRunExperiment",
           signature="Graple",
           definition=function(grapleObject, filterName)
@@ -431,7 +532,6 @@ setMethod(f="GrapleRunExperiment",
                 qurl <- paste(grapleObject@GWSURL, "GrapleRun", sep="/")
               }
               else{
-                filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
                 qurl <- paste(grapleObject@GWSURL, "GrapleRun", filterName, sep="/")
               }
               expid = postForm(qurl, files=fileUpload(tarfile))
@@ -449,6 +549,11 @@ setMethod(f="GrapleRunExperiment",
           }
 )
 
+#' Checks the status of an experiment
+#' @param object A Graple Object
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' GrapleCheckExperimentCompletion(grapleExp1)
 setMethod(f="GrapleCheckExperimentCompletion",
           signature="Graple",
           definition=function(grapleObject)
@@ -461,6 +566,11 @@ setMethod(f="GrapleCheckExperimentCompletion",
           }
 )
 
+#' Downloads the results to the results directory path with exp name/job id as the directory name
+#' @param grapleObject A Graple Object
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' GrapleGetExperimentResults(grapleExp1)
 setMethod(f="GrapleGetExperimentResults",
           signature="Graple",
           definition=function(grapleObject)
@@ -484,7 +594,7 @@ setMethod(f="GrapleGetExperimentResults",
               if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
                 grapleObject@TempDir <- tempdir()
               }
-              td<-setwd(grapleObject@ResultsDir)
+              td<-getwd()
               qurl<-paste(grapleObject@GWSURL, "GrapleRunResults", grapleObject@JobID, sep="/")
               status<- getURL(qurl)
               if(toString(fromJSON(status)[2]) == "success"){
@@ -510,6 +620,16 @@ setMethod(f="GrapleGetExperimentResults",
           }
 )
 
+#' Used to run a sweep experiment with a json file providing job description
+#' also, an optional filter can be run on the results generated
+#' @param grapleObject A Graple Object
+#' @param filterName An optional post-process filter name
+#' @param simsPerJob Optionally set the number of simulations per worker job
+#' @return The status message is updated on Graple object and the Graple object is returned
+#' @examples
+#' GrapleRunSweepExperiment(grapleExp1)
+#' GrapleRunSweepExperiment(grapleExp1, 'ExtractVariables')
+#' GrapleRunSweepExperiment(grapleExp1, 'ExtractVariables', 20)
 setMethod(f="GrapleRunSweepExperiment",
           signature="Graple",
           definition=function(grapleObject, filterName, simsPerJob)
@@ -556,7 +676,6 @@ setMethod(f="GrapleRunSweepExperiment",
                   qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", sep="/")
               }
               else{
-                filterName <- paste(sub("\\..*", "", filterName), '.R', sep="")
                 if(missing(simsPerJob)) {
                   if(distribution_type == 'non-linear')
                     qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", filterName, sep="/")
@@ -584,56 +703,11 @@ setMethod(f="GrapleRunSweepExperiment",
           }
 )
 
-setMethod(f="GrapleGetExperimentJobResults",
-          signature="Graple",
-          definition=function(grapleObject)
-          {
-            if(length(grapleObject@ResultsDir)<=0 || !dir.exists(grapleObject@ResultsDir))
-            {
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Results directory provided does not exist"
-            }
-            else if(length(grapleObject@JobID) <= 0)
-            {
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "No JobID, Experiment Job ID not provided"
-            }
-            else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
-            {
-              grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
-            }
-            else{
-              if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
-                grapleObject@TempDir <- tempdir()
-              }
-              td<-getwd()
-              qurl <- paste(grapleObject@GWSURL, "GrapleRunResultsMetSample", grapleObject@JobID, sep="/")
-              status<- getURL(qurl)
-
-              if(toString(fromJSON(status)[2]) == "success"){
-                qurl <- paste(grapleObject@GWSURL, grapleObject@JobID, "Results", "output.tar.gz", sep="/")
-                resultfile <- file.path(grapleObject@TempDir,  "results.tar.gz")
-                download.file(qurl, resultfile)
-                setwd(grapleObject@TempDir)
-                resultPath <- paste(grapleObject@ResultsDir, getResultsDirName(grapleObject), sep="/")
-                dir.create(resultPath)
-                file.copy("results.tar.gz", resultPath)
-                file.remove("results.tar.gz")
-                setwd(resultPath)
-                untar("results.tar.gz")
-                file.remove("results.tar.gz")
-                files <- list.files(".", pattern = "\\.bz2\\.tar$")
-                lapply(files, function(x){untar(x); file.remove(x)})
-                setwd(td)
-                grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- paste('The results have been downloaded to ', resultPath, sep = "")
-              }
-            }
-            return(grapleObject)
-          }
-)
-
+#' A method to abort an experiment
+#' @param grapleObject A Graple Object
+#' @return A text message with the status of the operation
+#' @examples
+#' GrapleEndExperiment(grapleExp1)
 setMethod(f="GrapleEndExperiment",
           signature="Graple",
           definition=function(grapleObject)
@@ -644,6 +718,12 @@ setMethod(f="GrapleEndExperiment",
           }
 )
 
+#' Checks if the GRAPLEr pacakge being used is compatible with GWS Service being used
+#' @param grapleObject A Graple Object
+#' @return A status msg indicating whether Web service and GRAPLEr are compatible
+#' and the Graple object is returned
+#' @examples
+#' GrapleChkVersionCompatibility(grapleExp1)
 setMethod(f="GrapleChkVersionCompatibility",
           signature="Graple",
           definition=function(grapleObject)
@@ -666,6 +746,11 @@ setMethod(f="GrapleChkVersionCompatibility",
           }
 )
 
+#' Provides a list of post processing operations/ filters available
+#' @param grapleObject A Graple Object
+#' @return Adds the list of filters to StatusMsg and returns the Graple object
+#' @examples
+#' GrapleListPostProcessFilters(grapleExp1)
 setMethod(f="GrapleListPostProcessFilters",
           signature="Graple",
           definition=function(grapleObject)

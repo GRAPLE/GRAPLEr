@@ -77,7 +77,7 @@ while (grapleExp3@StatusMsg != '100.0% complete' && grapleExp4@StatusMsg != '100
   print(paste(grapleExp4@ExpName, grapleExp4@StatusMsg, sep = ":"))
 }
 
-grapleExp3 <- GrapleGetExperimentJobResults(grapleExp3)
+grapleExp3 <- GrapleGetExperimentResults(grapleExp3)
 print(grapleExp3@StatusMsg)
-grapleExp4 <- GrapleGetExperimentJobResults(grapleExp4)
+grapleExp4 <- GrapleGetExperimentResults(grapleExp4)
 print(grapleExp4@StatusMsg)
