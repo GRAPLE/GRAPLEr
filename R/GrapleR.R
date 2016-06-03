@@ -201,9 +201,9 @@ validate_json <- function(jsonFilePath)
 #' @slot SecurityKey       API Security Key to authenticate a user
 #' @slot Retention         A user provided request to the GRAPLEr cluster on duration for which experiment results should be retained
 #' @slot Client_Version_ID The version of GRAPLEr package being used
-Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character", 
+Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character", APIKey="character",
                                        StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", SecurityKey="character",
-                                       Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu", Email='',
+                                       Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu", Email='', APIKey="0",
                                        TempDir=tempdir(), Retention = 10, Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
 setGeneric(name="setTempDir",
@@ -525,6 +525,7 @@ setMethod(f="GrapleRunExperiment",
               params['retention'] = grapleObject@Retention
               params['expname'] = getResultsDirName(grapleObject)
               params['email'] = grapleObject@Email
+              params['apikey'] = grapleObject@APIKey
               if(!missing(filterName))
                 params['filter'] = filterName
               qurl <- paste(grapleObject@GWSURL, "GrapleRun", sep="/")
@@ -542,6 +543,8 @@ setMethod(f="GrapleRunExperiment",
               } else {
                 grapleObject@StatusMsg <- "Unknown error"
               }
+              if(nchar(response$warnings) > 0) 
+                  grapleObject@StatusMsg <- paste(grapleObject@StatusMsg, "\nWARNING:", response$warnings)
 
               if (file.exists(tarfile)) file.remove(tarfile)
               setwd(td)
@@ -562,7 +565,7 @@ setMethod(f="GrapleCheckExperimentCompletion",
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleRunStatus", grapleObject@JobID, sep="/")
             grapleObject@StatusCode <- -1
-            status <- fromJSON(getURL(qurl))
+            status <- fromJSON(getForm(qurl, apikey=grapleObject@APIKey))
             
             if(nchar(status$errors) > 0)
               grapleObject@StatusMsg <- toString(status$errors)
@@ -605,7 +608,7 @@ setMethod(f="GrapleGetExperimentResults",
               td<-getwd()
               qurl<-paste(grapleObject@GWSURL, "GrapleRunResults", grapleObject@JobID, sep="/")
               grapleObject@StatusCode <- -1
-              getresp <- getURL(qurl)
+              getresp <- getForm(qurl, apikey=grapleObject@APIKey)
               status <- fromJSON(getresp)
               if(nchar(status$errors) > 0)
                   grapleObject@StatusMsg <- status$errors
@@ -687,6 +690,7 @@ setMethod(f="GrapleRunSweepExperiment",
               params['retention'] = grapleObject@Retention
               params['expname'] = getResultsDirName(grapleObject)
               params['email'] = grapleObject@Email
+              params['apikey'] = grapleObject@APIKey
               if(!missing(filterName))
                 params['filter'] = filterName
               if(!missing(simsPerJob))
@@ -706,6 +710,8 @@ setMethod(f="GrapleRunSweepExperiment",
               } else {
                 grapleObject@StatusMsg <- "Unknown error"
               }
+              if(nchar(response$warnings) > 0) 
+                  grapleObject@StatusMsg <- paste(grapleObject@StatusMsg, "\nWARNING:", response$warnings)
 
               if (file.exists(tarfile)) file.remove(tarfile)
               setwd(td)
@@ -724,7 +730,7 @@ setMethod(f="GrapleEndExperiment",
           definition=function(grapleObject)
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleEnd", grapleObject@JobID, sep="/")
-            status<- getURL(qurl)
+            status<- getForm(qurl, apikey=grapleObject@APIKey)
             return (fromJSON(status))
           }
 )
