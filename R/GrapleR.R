@@ -194,15 +194,16 @@ validate_json <- function(jsonFilePath)
 #' @slot ExpRootDir        Experiment Root Directory path
 #' @slot ResultsDir        Directory path for storing the results
 #' @slot JobID             Unique identifier for the experiment
+#' @slot Email             Email address to send notifications
+#' @slot APIKey            API Key to authenticate a user
 #' @slot StatusCode        Integer value indicating the status of an operation
 #' @slot StatusMsg         A brief text message indicating the status of an operation
 #' @slot ExpName           A name for the experiment
 #' @slot TempDir           Temporary Directory path for temporary storage of files
-#' @slot SecurityKey       API Security Key to authenticate a user
 #' @slot Retention         A user provided request to the GRAPLEr cluster on duration for which experiment results should be retained
 #' @slot Client_Version_ID The version of GRAPLEr package being used
-Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character", APIKey="character",
-                                       StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", SecurityKey="character",
+Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character",
+                                       APIKey="character", StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", 
                                        Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu", Email='', APIKey="0",
                                        TempDir=tempdir(), Retention = 10, Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
@@ -241,10 +242,10 @@ setGeneric(name="setResultsDir",
            }
 )
 
-setGeneric(name="setSecurityKey",
+setGeneric(name="setAPIKey",
            def=function(grapleObject,path)
            {
-             standardGeneric("setSecurityKey")
+             standardGeneric("setAPIKey")
            }
 )
 
@@ -436,13 +437,13 @@ setMethod(f="setResultsDir",
           }
 )
 
-#' Sets the security key in the grapleObject
+#' Sets the API key in the grapleObject
 #' @param grapleObject A Graple Object
-#' @param path Path to the a text file containing the security key
+#' @param path Path to the a text file containing the API key
 #' @return The status message is updated on Graple object and the Graple object is returned
 #' @examples
-#' setSecurityKey(grapleExp1, 'C:/ExpRoot/KeyFiles/myKey.txt')
-setMethod(f="setSecurityKey",
+#' setAPIKey(grapleExp1, 'C:/ExpRoot/KeyFiles/myKey.txt')
+setMethod(f="setAPIKey",
           signature="Graple",
           definition=function(grapleObject,path)
           {
@@ -455,10 +456,9 @@ setMethod(f="setSecurityKey",
               }
               else
               {
-                ##write the logic for reading file content and set the security key
-                grapleObject@SecurityKey <- ''
+                grapleObject@APIKey <- readLines(path)
                 grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- "Security Key has been successfully set"
+                grapleObject@StatusMsg <- "API Key has been successfully set"
               }
             }
             return(grapleObject)

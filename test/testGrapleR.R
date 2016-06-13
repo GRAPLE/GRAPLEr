@@ -18,7 +18,8 @@ cat(graple@StatusMsg)
 #
 #Start a new experiment and setup parameters
 #Retention specifies the number of days to retain results on server. Set to 10 if not specified. 0 denotes that results be deleted after first download
-grapleExp1 <- Graple(Retention = 5, ExpRootDir = "D:/GRAPLE/ExpRoot/Exp1", ResultsDir = "D:/GRAPLE/Results/Exp1", TempDir = tempdir())
+#Set APIKey parameters to readLines from the key file. If you're a registered user, your default email will be used 
+grapleExp1 <- Graple(APIKey = readLines("D:/GRAPLE/grapleKey.txt"), Retention = 5, ExpRootDir = "D:/GRAPLE/ExpRoot/Exp1", ResultsDir = "D:/GRAPLE/Results/Exp1", TempDir = tempdir())
 grapleExp1 <- setExpName(grapleExp1, "BatchExperiment1")
 
 # Change SubmissionURL
@@ -28,7 +29,7 @@ grapleExp1 <- setExpName(grapleExp1, "BatchExperiment1")
 #grapleExp1 <- setExperimentDir(grapleExp1, "C:/ExpRoot/Exp1")
 #grapleExp1 <- setResultsDir(grapleExp1, "C:/ExpRoot/Results/Exp1")
 #grapleExp1 <- setTempDir(grapleExp1, "C:/TempDir")
-#grapleExp1 <- setSecurityKey(grapleExp1, 'C:/TempDir/APIKey.txt')
+#grapleExp1 <- setAPIKey(grapleExp1, 'C:/APIKey.txt')
 
 #Run the experiment
 grapleExp1 <- GrapleRunExperiment(grapleExp1);
@@ -50,7 +51,7 @@ cat(grapleExp1@StatusMsg);
 ##Batch Experiment w/ Filter
 #
 filterName <- "ExtractVariables"
-grapleExp2 <- Graple(Retention = 0, ExpRootDir = "D:/GRAPLE/ExpRoot/Exp2", ResultsDir = "D:/GRAPLE/Results/Exp2", TempDir = tempdir())
+grapleExp2 <- Graple(APIKey = readLines("D:/GRAPLE/grapleKey.txt"), Retention = 0, ExpRootDir = "D:/GRAPLE/ExpRoot/Exp2", ResultsDir = "D:/GRAPLE/Results/Exp2", TempDir = tempdir())
 grapleExp2 <- GrapleRunExperiment(grapleExp2, filterName);
 cat(grapleExp2@StatusMsg);
 grapleExp2 <- GrapleCheckExperimentCompletion(grapleExp2);
@@ -60,7 +61,8 @@ grapleExp2 <- GrapleGetExperimentResults(grapleExp2);
 #Multiple Sweep Experiments at once
 #Set Email field to get an email notification
 #GrapleRunSweepExperiment(grapleObject, "FilterName", generate_gims_per_job)
-grapleExp3 <- Graple(Email = "example@mail.com", ExpRootDir = "D:/GRAPLE/ExpRoot/Exp3", ResultsDir = "D:/GRAPLE/Results/Exp3", TempDir = tempdir())
+#Set email parameter to override default email
+grapleExp3 <- Graple(APIKey = readLines("D:/GRAPLE/grapleKey.txt"), Email = "example@mail.com", ExpRootDir = "D:/GRAPLE/ExpRoot/Exp3", ResultsDir = "D:/GRAPLE/Results/Exp3", TempDir = tempdir())
 grapleExp4 <- Graple(Email = "example@mail.com", Retention = 0, ExpRootDir = "D:/GRAPLE/ExpRoot/Exp4", ResultsDir = "D:/GRAPLE/Results/Exp4", TempDir = tempdir())
 grapleExp3 <- setExpName(grapleExp3, "SweepExperiment3")
 grapleExp4 <- setExpName(grapleExp4, "SweepExperiment4")
