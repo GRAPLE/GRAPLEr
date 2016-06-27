@@ -60,15 +60,15 @@ grapleExp2 <- GrapleGetExperimentResults(grapleExp2);
 #
 #Multiple Sweep Experiments at once
 #Set Email field to get an email notification
-#GrapleRunSweepExperiment(grapleObject, "FilterName", generate_gims_per_job)
+#GrapleRunSweepExperiment(grapleObject, "FilterName")
 #Set email parameter to override default email
 grapleExp3 <- Graple(APIKey = readLines("D:/GRAPLE/grapleKey.txt"), Email = "example@mail.com", ExpRootDir = "D:/GRAPLE/ExpRoot/Exp3", ResultsDir = "D:/GRAPLE/Results/Exp3", TempDir = tempdir())
 grapleExp4 <- Graple(Email = "example@mail.com", Retention = 0, ExpRootDir = "D:/GRAPLE/ExpRoot/Exp4", ResultsDir = "D:/GRAPLE/Results/Exp4", TempDir = tempdir())
 grapleExp3 <- setExpName(grapleExp3, "SweepExperiment3")
 grapleExp4 <- setExpName(grapleExp4, "SweepExperiment4")
-grapleExp3 <- GrapleRunSweepExperiment(grapleExp3, "ExtractVariables", 2)
+grapleExp3 <- GrapleRunSweepExperiment(grapleExp3, "ExtractVariables")
 cat(grapleExp3@StatusMsg)
-grapleExp4 <- GrapleRunSweepExperiment(grapleExp4, "CCC_ALH_7May2016", 1)
+grapleExp4 <- GrapleRunSweepExperiment(grapleExp4, "CCC_ALH_7May2016")
 cat(grapleExp4@StatusMsg)
 
 grapleExp3 <- GrapleCheckExperimentCompletion(grapleExp3)

@@ -196,6 +196,7 @@ validate_json <- function(jsonFilePath)
 #' @slot JobID             Unique identifier for the experiment
 #' @slot Email             Email address to send notifications
 #' @slot APIKey            API Key to authenticate a user
+#' @slot SimsPerJob        A number indicating the number of simulations bundled into a worker job
 #' @slot StatusCode        Integer value indicating the status of an operation
 #' @slot StatusMsg         A brief text message indicating the status of an operation
 #' @slot ExpName           A name for the experiment
@@ -203,9 +204,9 @@ validate_json <- function(jsonFilePath)
 #' @slot Retention         A user provided request to the GRAPLEr cluster on duration for which experiment results should be retained
 #' @slot Client_Version_ID The version of GRAPLEr package being used
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character",
-                                       APIKey="character", StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", 
+                                       APIKey="character", SimsPerJob="numeric", StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", 
                                        Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu", Email='', APIKey="0",
-                                       TempDir=tempdir(), Retention = 10, Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
+                                       SimsPerJob=5, TempDir=tempdir(), Retention = 10, Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
 setGeneric(name="setTempDir",
            def=function(grapleObject,path)
@@ -278,7 +279,7 @@ setGeneric(name="GrapleGetExperimentResults",
 )
 
 setGeneric(name="GrapleRunSweepExperiment",
-           def=function(grapleObject, filterName, simsPerJob)
+           def=function(grapleObject, filterName)
            {
              standardGeneric("GrapleRunSweepExperiment")
            }
@@ -526,6 +527,7 @@ setMethod(f="GrapleRunExperiment",
               params['expname'] = getResultsDirName(grapleObject)
               params['email'] = grapleObject@Email
               params['apikey'] = grapleObject@APIKey
+              params['simsperjob'] = grapleObject@SimsPerJob
               if(!missing(filterName))
                 params['filter'] = filterName
               qurl <- paste(grapleObject@GWSURL, "GrapleRun", sep="/")
@@ -637,15 +639,13 @@ setMethod(f="GrapleGetExperimentResults",
 #' also, an optional filter can be run on the results generated
 #' @param grapleObject A Graple Object
 #' @param filterName An optional post-process filter name
-#' @param simsPerJob Optionally set the number of simulations per worker job
 #' @return The status message is updated on Graple object and the Graple object is returned
 #' @examples
 #' GrapleRunSweepExperiment(grapleExp1)
 #' GrapleRunSweepExperiment(grapleExp1, 'ExtractVariables')
-#' GrapleRunSweepExperiment(grapleExp1, 'ExtractVariables', 20)
 setMethod(f="GrapleRunSweepExperiment",
           signature="Graple",
-          definition=function(grapleObject, filterName, simsPerJob)
+          definition=function(grapleObject, filterName)
           {
             if(length(grapleObject@ExpRootDir)<=0 || !dir.exists(grapleObject@ExpRootDir)){
               grapleObject@StatusCode <- -1
@@ -691,10 +691,9 @@ setMethod(f="GrapleRunSweepExperiment",
               params['expname'] = getResultsDirName(grapleObject)
               params['email'] = grapleObject@Email
               params['apikey'] = grapleObject@APIKey
+              params['simsperjob'] = grapleObject@SimsPerJob
               if(!missing(filterName))
                 params['filter'] = filterName
-              if(!missing(simsPerJob))
-                params['gen_per_job'] = simsPerJob
 
               grapleObject@JobID <- ''
               grapleObject@StatusCode <- -1
