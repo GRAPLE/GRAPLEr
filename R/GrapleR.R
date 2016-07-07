@@ -151,7 +151,9 @@ filePresent <- function(dirPath, fileName){
 #' @keywords internal
 #' @importFrom jsonlite fromJSON
 #' @examples
+#' \dontrun{
 #' validate_json('C:/ExpRoot/Exp3/job_desc.json')
+#' }
 validate_json <- function(jsonFilePath)
 {
   valid_JSON <- TRUE

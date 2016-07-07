@@ -18,7 +18,7 @@ Imports:
     jsonlite,
     RCurl,
     httr,
-    methods,
+    methods
 License: MIT + file LICENSE
 URL: http://graple.org/
 BugReports: https://github.com/GRAPLE/GRAPLEr/issues
