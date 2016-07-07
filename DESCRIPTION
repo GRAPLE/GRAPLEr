@@ -1,12 +1,12 @@
 Package: GRAPLEr
-Title: Distributed computing made easy for lake ecology modeling
-Version: 2.0.0
-Authors@R: c(person("Ken", "S", role = c("aut", "cre"),
-  	     email = "kcratie@acis.ufl.edu"),
-	      person("Renato", "F", role = "cph"),
-	      person("Saumitra", "A", role = "ctb",
-		     email = "dr.graple@acis.ufl.edu"))
-Description: GRAPLEr brings the power of distributing computing to the
+Title: Distributed Computing Made Easy for Lake Ecology Modeling
+Version: 3.0.0
+Authors@R: c(person("Ken", "Subratie", role = c("aut", "cre"), email = "kcratie@acis.ufl.edu"),
+	      person("Renato", "Figueiredo", role = "aut", email = "renato@acis.ufl.edu"),
+	      person("Saumitra", "Aditya", role = "ctb"),
+	      person("Srinivas", "Mahesula", role = "ctb"),
+	      person("Jaikrishna", "Tanjore Sukumar", role = "ctb"))
+Description: Brings the power of distributing computing to the
     fingertips of lake ecology modelers. It is an R Package for connecting to
     the GRAPLE Web Service (GWS) and running GRAPLE jobs. Experiments consisting
     of thousands of simulations can be evaluated in a fraction of the time by
@@ -15,10 +15,13 @@ Description: GRAPLEr brings the power of distributing computing to the
 Depends:
     R (>= 3.1.1)
 Imports:
-    bitops,
     jsonlite,
     RCurl,
-License: GPL-3
+    httr,
+    methods,
+License: MIT + file LICENSE
 URL: http://graple.org/
+BugReports: https://github.com/GRAPLE/GRAPLEr/issues
 LazyData: true
 RoxygenNote: 5.0.1
+Suggests: testthat
