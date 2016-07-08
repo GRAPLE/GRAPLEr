@@ -2,29 +2,23 @@
 % Please edit documentation in R/GrapleR.R
 \name{GrapleCheckExperimentCompletion}
 \alias{GrapleCheckExperimentCompletion}
-\title{Check the GRAPLEr Experiment Status}
+\title{Checks the status of an experiment}
 \usage{
-GrapleCheckExperimentCompletion(submissionURL, experimentId)
+GrapleCheckExperimentCompletion(grapleObject)
 }
 \arguments{
-\item{submissionURL}{URL:Port of the GRAPLEr web service}
-
-\item{experimentId}{Experiment ID returned from GrapleRunExperiment
-or GrapleRunExperimentSweep}
+\item{grapleObject}{A Graple Object}
 }
 \value{
-a string describing experiment status
+The status message is updated on Graple object and the Graple object is returned
 }
 \description{
-This function allows you to check the staus of the GRAPLEr web service.
+Checks the status of an experiment
 }
 \examples{
 \dontrun{
-graplerURL<-"http://graple-service.cloudapp.net"
-expId<-"7YWMJYAYAR7Y3TNTAKC5801KMN7JHQW8NYBDMKUR"
-GrapleCheckExperimentCompletion(graplerURL, expId)
+grapleObject <- Graple(ExpRootDir="C:/InputDirectory", ResultsDir="C:/ResultsDirectory", TempDir = tempdir())
+GrapleCheckExperimentCompletion(grapleObject)
 }
 }
-\keyword{CheckExperimentCompletion}
-\keyword{Graple}
 
