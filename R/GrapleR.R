@@ -122,7 +122,7 @@ getResultsDirName <- function(object){
 #' filesPresent(grapleExp1)
 #' }
 filesPresent <- function(object){
-  if(length(list.files(path = object@ExpRootDir, recursive = FALSE, all.files = TRUE)) != length(list.dirs(path = object@ExpRootDir, recursive = FALSE))) # all.files = TRUE for Checking Hidden Files
+  if(length(list.files(path = object@ExpRootDir, recursive = FALSE, all.files = TRUE)) - 2 != length(list.dirs(path = object@ExpRootDir, recursive = FALSE))) # all.files = TRUE for Checking Hidden Files, -2 for Excluding . and .. 
     return(TRUE)
   else
     return(FALSE)
