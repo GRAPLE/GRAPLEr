@@ -708,7 +708,7 @@ setMethod(f="GrapleRunExperiment",
             }
             else if(filesPresent(grapleObject)){
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory should contain only directories(no files) for this experiment"
+              grapleObject@StatusMsg <- "Experiment root directory should contain only directories (no files) for this experiment. Check for any files/hidden files there."
             }
             else if(!missing(filterName) && !dir.exists(paste(grapleObject@ExpRootDir, "FilterParams", sep="/"))){
               grapleObject@StatusCode <- -1
