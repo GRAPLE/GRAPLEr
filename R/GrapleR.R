@@ -13,7 +13,7 @@
 #' @keywords internal
 #' @importFrom httr http_error
 #' @examples
-#' validate_url('http://graple.acis.ufl.edu')
+#' validate_url('https://graple.acis.ufl.edu')
 validate_url <- function(url){
   invalid_url = tryCatch({
     http_error(url)
@@ -216,7 +216,7 @@ validate_json <- function(jsonFilePath)
 
 #' An S4 class to represent a graple object.
 #'
-#' @slot GWSURL            A SubmissionURL for the experiment having a default value of http://graple.acis.ufl.edu
+#' @slot GWSURL            A SubmissionURL for the experiment having a default value of https://graple.acis.ufl.edu
 #' @slot ExpRootDir        Experiment Root Directory path
 #' @slot ResultsDir        Directory path for storing the results
 #' @slot JobID             Unique identifier for the experiment
@@ -233,7 +233,7 @@ validate_json <- function(jsonFilePath)
 #' @exportClass Graple
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character",
                                        APIKey="character", SimsPerJob="numeric", StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", 
-                                       Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="http://graple.acis.ufl.edu", Email='', APIKey="0",
+                                       Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="https://graple.acis.ufl.edu", Email='', APIKey="0",
                                        SimsPerJob=5, TempDir=tempdir(), Retention = 10, Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
 #' Set the Temporary Directory to given directory path for the Graple Object
@@ -261,7 +261,7 @@ setGeneric(name="setTempDir",
 #' @examples
 #' \dontrun{
 #' grapleObject <- Graple(ExpRootDir="C:/InputDirectory", ResultsDir="C:/ResultsDirectory", TempDir = tempdir())
-#' setSubmissionURL(grapleObject, 'http://graple.acis.ufl.edu')
+#' setSubmissionURL(grapleObject, 'https://graple.acis.ufl.edu')
 #' }
 setGeneric(name="setSubmissionURL",
            def=function(grapleObject,url)
@@ -515,7 +515,7 @@ setMethod(f="setTempDir",
 #' @examples
 #' \dontrun{
 #' grapleObject <- Graple(ExpRootDir="C:/InputDirectory", ResultsDir="C:/ResultsDirectory", TempDir = tempdir())
-#' setSubmissionURL(grapleExp1, 'http://graple.acis.ufl.edu')
+#' setSubmissionURL(grapleExp1, 'https://graple.acis.ufl.edu')
 #' }
 setMethod(f="setSubmissionURL",
           signature="Graple",
