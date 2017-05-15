@@ -122,7 +122,7 @@ getResultsDirName <- function(object){
 #' filesPresent(grapleExp1)
 #' }
 filesPresent <- function(object){
-  if(length(list.files(path = object@ExpRootDir, recursive = FALSE)) != length(list.dirs(path = object@ExpRootDir, recursive = FALSE)))
+  if(length(list.files(path = object@ExpRootDir, recursive = FALSE, all.files = TRUE)) - 2 != length(list.dirs(path = object@ExpRootDir, recursive = FALSE))) # all.files = TRUE for Checking Hidden Files, -2 for Excluding . and .. 
     return(TRUE)
   else
     return(FALSE)
@@ -708,7 +708,7 @@ setMethod(f="GrapleRunExperiment",
             }
             else if(filesPresent(grapleObject)){
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Experiment root directory should contain only directories(no files) for this experiment"
+              grapleObject@StatusMsg <- "Experiment root directory should contain only directories (no files) for this experiment. Check for any files/hidden files there."
             }
             else if(!missing(filterName) && !dir.exists(paste(grapleObject@ExpRootDir, "FilterParams", sep="/"))){
               grapleObject@StatusCode <- -1
@@ -900,7 +900,7 @@ setMethod(f="GrapleRunSweepExperiment",
               }
               td<-getwd()
               setwd(grapleObject@TempDir)
-              if(file.exists("sim.tar.gz")) file.remove("sweepexp.tar.gz")
+              if(file.exists("sweepexp.tar.gz")) file.remove("sweepexp.tar.gz")
               tarfile = file.path(getwd(), "sweepexp.tar.gz")
               setwd(grapleObject@ExpRootDir)
               tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
