@@ -900,7 +900,7 @@ setMethod(f="GrapleRunSweepExperiment",
               }
               td<-getwd()
               setwd(grapleObject@TempDir)
-              if(file.exists("sim.tar.gz")) file.remove("sweepexp.tar.gz")
+              if(file.exists("sweepexp.tar.gz")) file.remove("sweepexp.tar.gz")
               tarfile = file.path(getwd(), "sweepexp.tar.gz")
               setwd(grapleObject@ExpRootDir)
               tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
