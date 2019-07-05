@@ -1,7 +1,6 @@
-
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("GRAPLEr has been developed with support from a supplement the PRAGMA award (NSF OCI-1234983) by
-  Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
+  Ken Subratie, Saumitra Aditya, Satish Mahesula, Vahid Daneshmand, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
   For more information, please visit graple.org")
 }
 
@@ -228,13 +227,17 @@ validate_json <- function(jsonFilePath)
 #' @slot ExpName           A name for the experiment
 #' @slot TempDir           Temporary Directory path for temporary storage of files
 #' @slot Retention         A user provided request to the GRAPLEr cluster on duration for which experiment results should be retained
+#' @slot GLM               GLM Version to Be Used for Running the Experiment
 #' @slot Client_Version_ID The version of GRAPLEr package being used
 #' @importFrom methods new
 #' @exportClass Graple
-Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character",
-                                       APIKey="character", SimsPerJob="numeric", StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", 
-                                       Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="https://graple.acis.ufl.edu", Email='', APIKey="0",
-                                       SimsPerJob=5, TempDir=tempdir(), Retention = 10, Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
+Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character",
+                                       Email="character", APIKey="character", SimsPerJob="numeric", StatusCode="numeric",
+                                       StatusMsg="character", ExpName="character", TempDir="character", Retention ="numeric",
+                                       GLM = "character", Client_Version_ID="character"),
+                                       prototype = list(GWSURL="https://graple.acis.ufl.edu", Email='', APIKey="0", SimsPerJob=5,
+                                       TempDir=tempdir(), Retention = 5, GLM = '',
+                                       Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
 #' Set the Temporary Directory to given directory path for the Graple Object
 #' @param grapleObject A Graple Object
@@ -736,6 +739,7 @@ setMethod(f="GrapleRunExperiment",
               params['email'] = grapleObject@Email
               params['apikey'] = grapleObject@APIKey
               params['simsperjob'] = grapleObject@SimsPerJob
+              params['glm'] = grapleObject@GLM
               if(!missing(filterName))
                 params['filter'] = filterName
               qurl <- paste(grapleObject@GWSURL, "GrapleRun", sep="/")
@@ -915,6 +919,7 @@ setMethod(f="GrapleRunSweepExperiment",
               params['email'] = grapleObject@Email
               params['apikey'] = grapleObject@APIKey
               params['simsperjob'] = grapleObject@SimsPerJob
+              params['glm'] = grapleObject@GLM
               if(!missing(filterName))
                 params['filter'] = filterName
 
