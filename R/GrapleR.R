@@ -4,7 +4,7 @@
   For more information, please visit graple.org")
   #' Skip RCurl Self-signed SSL Certificate Error
   options(RCurlOptions = list(ssl.verifypeer = FALSE, ssl.verifyhost = FALSE))
-  set_config(config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
+  httr::set_config(config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
 }
 
 #' Validates whether a given url exists
