@@ -4,6 +4,7 @@
   For more information, please visit graple.org")
   #' Skip RCurl Self-signed SSL Certificate Error
   options(RCurlOptions = list(ssl.verifypeer = FALSE, ssl.verifyhost = FALSE))
+  set_config(config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
 }
 
 #' Validates whether a given url exists
@@ -836,7 +837,7 @@ setMethod(f="GrapleGetExperimentResults",
               else if(status$status == "success"){
                 qurl <- paste(grapleObject@GWSURL, status$output_url, sep="")
                 resultfile <- file.path(grapleObject@TempDir, "results.tar.gz")
-                download.file(qurl, resultfile, method = "libcurl")
+                GET(qurl, write_disk(resultfile, overwrite=TRUE))
                 setwd(grapleObject@TempDir)
                 resultPath <- paste(grapleObject@ResultsDir, getResultsDirName(grapleObject), sep="/")
                 dir.create(resultPath)
