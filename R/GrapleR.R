@@ -1,10 +1,9 @@
-#' Skip RCurl Self-signed SSL Certificate Error
-options(RCurlOptions = list(ssl.verifypeer = FALSE, ssl.verifyhost = FALSE))
-
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("GRAPLEr has been developed with support from a supplement the PRAGMA award (NSF OCI-1234983) by
   Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
   For more information, please visit graple.org")
+  #' Skip RCurl Self-signed SSL Certificate Error
+  options(RCurlOptions = list(ssl.verifypeer = FALSE, ssl.verifyhost = FALSE))
 }
 
 #' Validates whether a given url exists
