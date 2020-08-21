@@ -784,7 +784,7 @@ setMethod(f="GrapleCheckExperimentCompletion",
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleRunStatus", grapleObject@JobID, sep="/")
             grapleObject@StatusCode <- -1
-            status <- fromJSON(getForm(qurl, apikey=grapleObject@APIKey))
+            status <- fromJSON(getForm(qurl, apikey=grapleObject@APIKey, ssl.verifypeer = FALSE, ssl.verifyhost = FALSE))
             
             if(nchar(status$errors) > 0)
               grapleObject@StatusMsg <- toString(status$errors)
@@ -832,7 +832,7 @@ setMethod(f="GrapleGetExperimentResults",
               td<-getwd()
               qurl<-paste(grapleObject@GWSURL, "GrapleRunResults", grapleObject@JobID, sep="/")
               grapleObject@StatusCode <- -1
-              getresp <- getForm(qurl, apikey=grapleObject@APIKey)
+              getresp <- getForm(qurl, apikey=grapleObject@APIKey, ssl.verifypeer = FALSE, ssl.verifyhost = FALSE)
               status <- fromJSON(getresp)
               if(nchar(status$errors) > 0)
                   grapleObject@StatusMsg <- status$errors
@@ -962,7 +962,7 @@ setMethod(f="GrapleEndExperiment",
           definition=function(grapleObject)
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleEnd", grapleObject@JobID, sep="/")
-            status<- getForm(qurl, apikey=grapleObject@APIKey)
+            status<- getForm(qurl, apikey=grapleObject@APIKey, ssl.verifypeer = FALSE, ssl.verifyhost = FALSE)
             return (fromJSON(status))
           }
 )
