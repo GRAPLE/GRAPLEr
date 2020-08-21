@@ -836,7 +836,7 @@ setMethod(f="GrapleGetExperimentResults",
               else if(status$status == "success"){
                 qurl <- paste(grapleObject@GWSURL, status$output_url, sep="")
                 resultfile <- file.path(grapleObject@TempDir, "results.tar.gz")
-                download.file(qurl, resultfile)
+                download.file(qurl, resultfile, method = "libcurl")
                 setwd(grapleObject@TempDir)
                 resultPath <- paste(grapleObject@ResultsDir, getResultsDirName(grapleObject), sep="/")
                 dir.create(resultPath)
