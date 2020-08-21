@@ -682,7 +682,7 @@ setMethod(f="GrapleCheckService",
           definition=function(grapleObject)
           {
             qurl<-paste(grapleObject@GWSURL, "service_status", sep="/")
-            status<- getURL(qurl)
+            status<- getURL(qurl, ssl.verifypeer = FALSE, ssl.verifyhost = FALSE)
             grapleObject@StatusCode <- 1
             grapleObject@StatusMsg <- paste(toString(fromJSON(status)[1]),toString(fromJSON(status)[2]))
             return(grapleObject)
@@ -986,7 +986,7 @@ setMethod(f="GrapleChkVersionCompatibility",
               grapleObject@Client_Version_ID <- packageVersion("GRAPLEr")
             }
             qurl <- paste(grapleObject@GWSURL, "GrapleGetVersion", sep="/")
-            status <- getURL(qurl)
+            status <- getURL(qurl, ssl.verifypeer = FALSE, ssl.verifyhost = FALSE)
             compatibleGRAPLEVersions <- fromJSON(status)
             if(grapleObject@Client_Version_ID %in% compatibleGRAPLEVersions){
               grapleObject@StatusCode <- 1
@@ -1015,7 +1015,7 @@ setMethod(f="GrapleListPostProcessFilters",
           definition=function(grapleObject)
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleListFilters", sep="/")
-            status<- getURL(qurl)
+            status<- getURL(qurl, ssl.verifypeer = FALSE, ssl.verifyhost = FALSE)
             grapleObject@StatusCode <- 1
             grapleObject@StatusMsg <- paste('The list of post process filters available are :', toString(fromJSON(status)), sep = "")
             return(grapleObject)
