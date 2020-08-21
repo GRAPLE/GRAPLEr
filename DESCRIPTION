@@ -1,6 +1,6 @@
 Package: GRAPLEr
 Title: Distributed Computing Made Easy for Lake Ecology Modeling
-Version: 3.1.0
+Version: 3.1.1
 Authors@R: c(person("Ken", "Subratie", role = c("aut", "cre"), email = "kcratie@acis.ufl.edu"),
 	      person("Renato", "Figueiredo", role = "aut", email = "renato@acis.ufl.edu"),
 	      person("Saumitra", "Aditya", role = "ctb"),
