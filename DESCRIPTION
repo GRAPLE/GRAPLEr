@@ -15,7 +15,7 @@ Description: Brings the power of distributing computing to the
     submitting batches of GLM (General Lake Model) simulations to a distributed
     computing system, directly from your R/RStudio environment.
 Depends:
-    R
+    R (>= 3.1.1)
 Imports:
     jsonlite,
     RCurl,
