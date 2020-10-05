@@ -1,9 +1,8 @@
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("GRAPLEr has been developed with support from a supplement the PRAGMA award (NSF OCI-1234983) by
-  Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey and Paul C. Hanson.
-  For more information, please visit graple.org")
-  #' Skip RCurl Self-signed SSL Certificate Error
-  options(RCurlOptions = list(ssl.verifypeer = FALSE, ssl.verifyhost = FALSE))
+  Ken Subratie, Saumitra Aditya, Satish Mahesula, Renato J. Figueiredo, Cayelan C. Carey, Paul C. Hanson, and Vahid Daneshmand.
+  For more information, please visit 'http://graple.org'.")
+  #' Skip Self-signed SSL Certificate Error
   httr::set_config(httr::config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
 }
 
@@ -42,7 +41,7 @@ check_graple <- function(object) {
     valid_url <- validate_url(object@GWSURL)
 
     if (!valid_url) {
-      msg <- paste("Invalid url")
+      msg <- paste("Invalid URL")
       errors <- c(errors, msg)
     }
   }
@@ -51,7 +50,7 @@ check_graple <- function(object) {
   {
     if(!dir.exists(object@ExpRootDir))
     {
-      msg <- paste("Experiment root directory does not exist")
+      msg <- paste("Experiment root directory does not exist.")
       errors <- c(errors, msg)
     }
   }
@@ -60,14 +59,14 @@ check_graple <- function(object) {
   {
     if(!dir.exists(object@ResultsDir))
     {
-      msg <- paste("Results directory does not exist")
+      msg <- paste("Results directory does not exist.")
       errors <- c(errors, msg)
     }
   }
 
   if(!check_subdirectory(object))
   {
-    msg <- paste("Exp Root Dir/Result directory is a sub-directory of Result/Input")
+    msg <- paste("Experiment root directory or result directory are a sub-directory of Result/Input.")
     errors <- c(errors, msg)
   }
 
@@ -124,7 +123,7 @@ getResultsDirName <- function(object){
 #' filesPresent(grapleExp1)
 #' }
 filesPresent <- function(object){
-  if(length(list.files(path = object@ExpRootDir, recursive = FALSE, all.files = TRUE)) - 2 != length(list.dirs(path = object@ExpRootDir, recursive = FALSE))) # all.files = TRUE for Checking Hidden Files, -2 for Excluding . and .. 
+  if(length(list.files(path = object@ExpRootDir, recursive = FALSE, all.files = TRUE)) - 2 != length(list.dirs(path = object@ExpRootDir, recursive = FALSE))) # all.files = TRUE for Checking Hidden Files, -2 for Excluding . and ..
     return(TRUE)
   else
     return(FALSE)
@@ -234,7 +233,7 @@ validate_json <- function(jsonFilePath)
 #' @importFrom methods new
 #' @exportClass Graple
 Graple <- setClass("Graple", slots = c(GWSURL = "character", ExpRootDir="character", ResultsDir="character", JobID="character", Email="character",
-                                       APIKey="character", SimsPerJob="numeric", StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character", 
+                                       APIKey="character", SimsPerJob="numeric", StatusCode="numeric", StatusMsg="character", ExpName="character", TempDir="character",
                                        Retention ="numeric", Client_Version_ID="character"), prototype = list(GWSURL="https://graple.acis.ufl.edu", Email='', APIKey="0",
                                        SimsPerJob=5, TempDir=tempdir(), Retention = 10, Client_Version_ID = toString(packageVersion("GRAPLEr"))), validity = check_graple)
 
@@ -343,7 +342,7 @@ setGeneric(name="setAPIKey",
 #' Checks if the graple service is up and running on the submission URL provided
 #' @param grapleObject A Graple Object
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -362,7 +361,7 @@ setGeneric(name="GrapleCheckService",
 #' @param grapleObject A Graple Object
 #' @param filterName An optional post-process filter name
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl fileUpload postForm
+#' @importFrom httr upload_file POST
 #' @export
 #' @examples
 #' \dontrun{
@@ -379,7 +378,7 @@ setGeneric(name="GrapleRunExperiment",
 #' Checks the status of an experiment
 #' @param grapleObject A Graple Object
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -396,7 +395,7 @@ setGeneric(name="GrapleCheckExperimentCompletion",
 #' Downloads the results to the results directory path with exp name/job id as the directory name
 #' @param grapleObject A Graple Object
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -415,7 +414,7 @@ setGeneric(name="GrapleGetExperimentResults",
 #' @param grapleObject A Graple Object
 #' @param filterName An optional post-process filter name
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl fileUpload postForm
+#' @importFrom httr upload_file POST
 #' @export
 #' @examples
 #' \dontrun{
@@ -433,7 +432,7 @@ setGeneric(name="GrapleRunSweepExperiment",
 #' A method to abort an experiment
 #' @param grapleObject A Graple Object
 #' @return A text message with the status of the operation
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -451,7 +450,7 @@ setGeneric(name="GrapleEndExperiment",
 #' @param grapleObject A Graple Object
 #' @return A status msg indicating whether Web service and GRAPLEr are compatible
 #' and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -468,7 +467,7 @@ setGeneric(name="GrapleChkVersionCompatibility",
 #' Provides a list of post processing operations/ filters available
 #' @param grapleObject A Graple Object
 #' @return Adds the list of filters to StatusMsg and returns the Graple object
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -627,7 +626,7 @@ setMethod(f="setResultsDir",
               {
                 grapleObject@ResultsDir <- path
                 grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- "Experiment root directory has been set to directory provided"
+                grapleObject@StatusMsg <- "Experiment results directory has been set to directory provided"
               }
             }
             return(grapleObject)
@@ -669,7 +668,7 @@ setMethod(f="setAPIKey",
 #' Checks if the graple service is up and running on the submission URL provided
 #' @param grapleObject A Graple Object
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -681,9 +680,9 @@ setMethod(f="GrapleCheckService",
           definition=function(grapleObject)
           {
             qurl<-paste(grapleObject@GWSURL, "service_status", sep="/")
-            status<- getURL(qurl)
+            status<- GET(qurl)
             grapleObject@StatusCode <- 1
-            grapleObject@StatusMsg <- paste(toString(fromJSON(status)[1]),toString(fromJSON(status)[2]))
+            grapleObject@StatusMsg <- paste(content(status)$status,content(status)$time)
             return(grapleObject)
           }
 )
@@ -693,7 +692,7 @@ setMethod(f="GrapleCheckService",
 #' @param grapleObject A Graple Object
 #' @param filterName An optional post-process filter name
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl fileUpload postForm
+#' @importFrom httr upload_file POST
 #' @export
 #' @examples
 #' \dontrun{
@@ -731,19 +730,13 @@ setMethod(f="GrapleRunExperiment",
               tarfile = file.path(getwd(), "sim.tar.gz")
               setwd(grapleObject@ExpRootDir)
               tar(tarfile, ".", compression="gz", compression_level = 6, tar="internal")
-
-              params = list()
-              params['retention'] = grapleObject@Retention
-              params['expname'] = getResultsDirName(grapleObject)
-              params['email'] = grapleObject@Email
-              params['apikey'] = grapleObject@APIKey
-              params['simsperjob'] = grapleObject@SimsPerJob
-              if(!missing(filterName))
-                params['filter'] = filterName
               qurl <- paste(grapleObject@GWSURL, "GrapleRun", sep="/")
-              postresp = postForm(qurl, .params = params, files=fileUpload(tarfile))
-              response = fromJSON(postresp)
-              
+              if(!missing(filterName))
+                postresp <- POST(qurl, body = list(retention = grapleObject@Retention, expname = getResultsDirName(grapleObject), email = grapleObject@Email, apikey = grapleObject@APIKey, simsperjob = grapleObject@SimsPerJob, filter = filterName, files = upload_file(tarfile)), encode = "multipart")
+              else
+                postresp <- POST(qurl, body = list(retention = grapleObject@Retention, expname = getResultsDirName(grapleObject), email = grapleObject@Email, apikey = grapleObject@APIKey, simsperjob = grapleObject@SimsPerJob, files = upload_file(tarfile)), encode = "multipart")
+              response <- content(postresp)
+
               grapleObject@JobID <- ''
               grapleObject@StatusCode <- -1
               if(nchar(response$errors) > 0) {
@@ -751,11 +744,11 @@ setMethod(f="GrapleRunExperiment",
               } else if(nchar(response$uid) == 40) {
                 grapleObject@JobID <- toString(response$uid)
                 grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
+                grapleObject@StatusMsg <- paste("The simulation was submitted successfully. JobID: ", grapleObject@JobID, sep = '')
               } else {
                 grapleObject@StatusMsg <- "Unknown error"
               }
-              if(nchar(response$warnings) > 0) 
+              if(nchar(response$warnings) > 0)
                   grapleObject@StatusMsg <- paste(grapleObject@StatusMsg, "\nWARNING:", response$warnings)
 
               if (file.exists(tarfile)) file.remove(tarfile)
@@ -769,26 +762,28 @@ setMethod(f="GrapleRunExperiment",
 #' Checks the status of an experiment
 #' @param grapleObject A Graple Object
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
 #' grapleObject <- Graple(ExpRootDir="C:/InputDirectory", ResultsDir="C:/ResultsDirectory", TempDir = tempdir())
 #' GrapleCheckExperimentCompletion(grapleExp1)
 #' }
+
+
 setMethod(f="GrapleCheckExperimentCompletion",
           signature="Graple",
           definition=function(grapleObject)
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleRunStatus", grapleObject@JobID, sep="/")
             grapleObject@StatusCode <- -1
-            status <- fromJSON(getForm(qurl, apikey=grapleObject@APIKey))
-            
+            status <- content(GET(qurl, query = list(apikey = grapleObject@APIKey)))
+
             if(nchar(status$errors) > 0)
-              grapleObject@StatusMsg <- toString(status$errors)
+              grapleObject@StatusMsg <- status$errors
             else {
               grapleObject@StatusCode <- 1
-              grapleObject@StatusMsg <- toString(status$curr_status)
+              grapleObject@StatusMsg <- status$curr_status
             }
             return (grapleObject)
           }
@@ -797,7 +792,7 @@ setMethod(f="GrapleCheckExperimentCompletion",
 #' Downloads the results to the results directory path with exp name/job id as the directory name
 #' @param grapleObject A Graple Object
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -811,17 +806,17 @@ setMethod(f="GrapleGetExperimentResults",
             if(length(grapleObject@ResultsDir)<=0 || !dir.exists(grapleObject@ResultsDir))
             {
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "Results directory provided does not exist"
+              grapleObject@StatusMsg <- "Results directory provided does not exist."
             }
             else if(length(grapleObject@JobID) <= 0)
             {
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- "No JobID, Experiment Job ID not provided"
+              grapleObject@StatusMsg <- "No JobID, Experiment Job ID not provided."
             }
             else if(getResultsDirName(grapleObject) %in% list.files(grapleObject@ResultsDir))
             {
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- paste("Directory with name as ExpName/JobID found in results dir,please delete and try again", sep ="")
+              grapleObject@StatusMsg <- paste("A directory with the same name as ExpName/JobID found in results directory. Please remove it and try again.", sep ="")
             }
             else{
               if(length(grapleObject@TempDir)<=0 || !dir.exists(grapleObject@TempDir)){
@@ -830,8 +825,8 @@ setMethod(f="GrapleGetExperimentResults",
               td<-getwd()
               qurl<-paste(grapleObject@GWSURL, "GrapleRunResults", grapleObject@JobID, sep="/")
               grapleObject@StatusCode <- -1
-              getresp <- getForm(qurl, apikey=grapleObject@APIKey)
-              status <- fromJSON(getresp)
+              getresp <- GET(qurl, query = list(apikey = grapleObject@APIKey))
+              status <- fromJSON(content(getresp, "text"))
               if(nchar(status$errors) > 0)
                   grapleObject@StatusMsg <- status$errors
               else if(status$status == "success"){
@@ -848,7 +843,7 @@ setMethod(f="GrapleGetExperimentResults",
                 file.remove("results.tar.gz")
                 setwd(td)
                 grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- paste('The results have been downloaded to ', resultPath, sep ="")
+                grapleObject@StatusMsg <- paste('The results have been downloaded to: ', resultPath, sep ="")
               }
             }
             return(grapleObject)
@@ -860,7 +855,7 @@ setMethod(f="GrapleGetExperimentResults",
 #' @param grapleObject A Graple Object
 #' @param filterName An optional post-process filter name
 #' @return The status message is updated on Graple object and the Graple object is returned
-#' @importFrom RCurl fileUpload postForm
+#' @importFrom httr upload_file POST
 #' @export
 #' @examples
 #' \dontrun{
@@ -911,30 +906,24 @@ setMethod(f="GrapleRunSweepExperiment",
                 qurl <- paste(grapleObject@GWSURL, "GrapleRunMetSample", sep="/")
               else
                 qurl <- paste(grapleObject@GWSURL, "GrapleRunLinearSweep", sep="/")
-              params = list()
-              params['retention'] = grapleObject@Retention
-              params['expname'] = getResultsDirName(grapleObject)
-              params['email'] = grapleObject@Email
-              params['apikey'] = grapleObject@APIKey
-              params['simsperjob'] = grapleObject@SimsPerJob
-              if(!missing(filterName))
-                params['filter'] = filterName
-
               grapleObject@JobID <- ''
               grapleObject@StatusCode <- -1
-              subresp <- postForm(qurl, .params = params, files=fileUpload(tarfile))
-              response <- fromJSON(subresp)
+              if(!missing(filterName))
+                subresp <- POST(qurl, body = list(retention = grapleObject@Retention, expname = getResultsDirName(grapleObject), email = grapleObject@Email, apikey = grapleObject@APIKey, simsperjob = grapleObject@SimsPerJob, filter = filterName, files = upload_file(tarfile)), encode = "multipart")
+              else
+                subresp <- POST(qurl, body = list(retention = grapleObject@Retention, expname = getResultsDirName(grapleObject), email = grapleObject@Email, apikey = grapleObject@APIKey, simsperjob = grapleObject@SimsPerJob, files = upload_file(tarfile)), encode = "multipart")
+              response <- content(subresp)
 
               if(nchar(response$errors) > 0) {
                 grapleObject@StatusMsg <- response$errors
               } else if(nchar(response$uid) == 40) {
                 grapleObject@JobID <- toString(response$uid)
                 grapleObject@StatusCode <- 1
-                grapleObject@StatusMsg <- paste("The simulation was submitted successfully, JobID: ", grapleObject@JobID, sep = '')
+                grapleObject@StatusMsg <- paste("The simulation was submitted successfully. JobID: ", grapleObject@JobID, sep = '')
               } else {
                 grapleObject@StatusMsg <- "Unknown error"
               }
-              if(nchar(response$warnings) > 0) 
+              if(nchar(response$warnings) > 0)
                   grapleObject@StatusMsg <- paste(grapleObject@StatusMsg, "\nWARNING:", response$warnings)
 
               if (file.exists(tarfile)) file.remove(tarfile)
@@ -947,7 +936,7 @@ setMethod(f="GrapleRunSweepExperiment",
 #' A method to abort an experiment
 #' @param grapleObject A Graple Object
 #' @return A text message with the status of the operation
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -959,8 +948,8 @@ setMethod(f="GrapleEndExperiment",
           definition=function(grapleObject)
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleEnd", grapleObject@JobID, sep="/")
-            status<- getForm(qurl, apikey=grapleObject@APIKey)
-            return (fromJSON(status))
+            status<- GET(qurl, query = list(apikey = grapleObject@APIKey))
+            return (fromJSON(content(status, "text")))
           }
 )
 
@@ -968,7 +957,7 @@ setMethod(f="GrapleEndExperiment",
 #' @param grapleObject A Graple Object
 #' @return A status msg indicating whether Web service and GRAPLEr are compatible
 #' and the Graple object is returned
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -983,15 +972,15 @@ setMethod(f="GrapleChkVersionCompatibility",
               grapleObject@Client_Version_ID <- packageVersion("GRAPLEr")
             }
             qurl <- paste(grapleObject@GWSURL, "GrapleGetVersion", sep="/")
-            status <- getURL(qurl)
-            compatibleGRAPLEVersions <- fromJSON(status)
+            status <- GET(qurl)
+            compatibleGRAPLEVersions <- fromJSON(content(status, "text"))
             if(grapleObject@Client_Version_ID %in% compatibleGRAPLEVersions){
               grapleObject@StatusCode <- 1
-              grapleObject@StatusMsg <- 'GWS and GRAPLEr versions are compatible'
+              grapleObject@StatusMsg <- 'GRAPLE Web Service and GRAPLEr are compatible.'
             }
             else{
               grapleObject@StatusCode <- -1
-              grapleObject@StatusMsg <- paste('GWS and GRAPLEr versions are not compatible, compatible versions are :', compatibleGRAPLEVersions, sep="")
+              grapleObject@StatusMsg <- paste('GRAPLE Web Service and GRAPLEr are not compatible. Compatible versions are: ', compatibleGRAPLEVersions, sep="")
             }
             return(grapleObject)
           }
@@ -1000,7 +989,7 @@ setMethod(f="GrapleChkVersionCompatibility",
 #' Provides a list of post processing operations/ filters available
 #' @param grapleObject A Graple Object
 #' @return Adds the list of filters to StatusMsg and returns the Graple object
-#' @importFrom RCurl getURL
+#' @importFrom httr GET
 #' @export
 #' @examples
 #' \dontrun{
@@ -1012,9 +1001,9 @@ setMethod(f="GrapleListPostProcessFilters",
           definition=function(grapleObject)
           {
             qurl <- paste(grapleObject@GWSURL, "GrapleListFilters", sep="/")
-            status<- getURL(qurl)
+            status <- GET(qurl)
             grapleObject@StatusCode <- 1
-            grapleObject@StatusMsg <- paste('The list of post process filters available are :', toString(fromJSON(status)), sep = "")
+            grapleObject@StatusMsg <- paste('Available post-process filters: ', toString(fromJSON(content(status, "text"))), sep = "")
             return(grapleObject)
           }
 )
