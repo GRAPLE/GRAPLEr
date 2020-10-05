@@ -826,7 +826,7 @@ setMethod(f="GrapleGetExperimentResults",
               qurl<-paste(grapleObject@GWSURL, "GrapleRunResults", grapleObject@JobID, sep="/")
               grapleObject@StatusCode <- -1
               getresp <- GET(qurl, query = list(apikey = grapleObject@APIKey))
-              status <- fromJSON(content(getresp, "text"))
+               status <- fromJSON(content(getresp, "text", encoding = "UTF-8"))
               if(nchar(status$errors) > 0)
                   grapleObject@StatusMsg <- status$errors
               else if(status$status == "success"){
